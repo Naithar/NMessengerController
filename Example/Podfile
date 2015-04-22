@@ -1,0 +1,12 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+target 'NMessengerController', :exclusive => true do
+  pod "NMessengerController", :path => "../"
+end
+
+target 'Tests', :exclusive => true do
+  pod "NMessengerController", :path => "../"
+
+  pod 'Specta'
+  pod 'Expecta'
+end

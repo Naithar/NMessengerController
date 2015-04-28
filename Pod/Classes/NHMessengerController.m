@@ -22,8 +22,12 @@
 @property (strong, nonatomic) id showKeyboardObserver;
 @property (strong, nonatomic) id hideKeyboardObserver;
 
+@property (strong, nonatomic) id foundResponderForTextView;
+@property (strong, nonatomic) id foundResponderForTextField;
+
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
+@property (weak, nonatomic) UIView *keyboardView;
 @end
 
 @implementation NHMessengerController
@@ -87,6 +91,7 @@
 
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 10, self.superview.bounds.size.width - 20, 30)];
     self.textView.backgroundColor = [UIColor greenColor];
+    self.textView.inputAccessoryView = [UIView new];
     [self.container addSubview:self.textView];
 
 
@@ -119,7 +124,27 @@
                                        __strong __typeof(weakSelf) strongSelf = self;
 
                                        [strongSelf processKeyboardNotification:note.userInfo];
+
+                                       strongSelf.keyboardView = nil;
                                    }];
+
+    self.foundResponderForTextView = [[NSNotificationCenter defaultCenter]
+                                 addObserverForName:UITextViewTextDidBeginEditingNotification
+                                 object:nil
+                                 queue:nil
+                                 usingBlock:^(NSNotification *note) {
+                                     __strong __typeof(weakSelf) strongSelf = self;
+                                     [strongSelf getKeyboardViewFromFirstResponder:note.object];
+                                 }];
+
+    self.foundResponderForTextField = [[NSNotificationCenter defaultCenter]
+                                 addObserverForName:UITextViewTextDidBeginEditingNotification
+                                 object:nil
+                                 queue:nil
+                                 usingBlock:^(NSNotification *note) {
+                                     __strong __typeof(weakSelf) strongSelf = self;
+                                     [strongSelf getKeyboardViewFromFirstResponder:note.object];
+                                 }];
 
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                               action:@selector(panGestureAction:)];
@@ -133,7 +158,6 @@
     NSValue *keyboardRect = data[UIKeyboardFrameEndUserInfoKey];
 
     if (keyboardRect) {
-//        var keyboardFrame = self.parentView?.convertRect(keyboardEndFrame!, fromView: nil) ?? nil
 
         CGRect rect = [self.superview convertRect:[keyboardRect CGRectValue] fromView:nil];
 
@@ -144,8 +168,48 @@
     }
 }
 
+- (void)getKeyboardViewFromFirstResponder:(UIResponder*)responder {
+    if (responder.inputAccessoryView) {
+        self.keyboardView = responder.inputAccessoryView.superview;
+    }
+}
 - (void)panGestureAction:(UIPanGestureRecognizer*)recognizer {
-    NSLog(@"%@",recognizer);
+    if (!self.keyboardView) {
+        return;
+    }
+
+
+    CGPoint pointInView = [recognizer locationInView:self.container];
+    CGPoint translateInContainer = [recognizer translationInView:self.container];
+    [recognizer setTranslation:CGPointZero inView:self.container];
+
+
+    if (!CGRectContainsPoint(self.container.bounds, pointInView)) {
+
+//        if (pointInView.y < 0) {
+//            self.bottomConstraint.constant -= translateInContainer.y;
+//            CGRect keyboardFrame = self.keyboardView.frame;
+//            keyboardFrame.origin.y -= translateInContainer.y;
+//            self.keyboardView.frame = keyboardFrame;
+//
+//        }
+        return;
+    }
+
+
+
+    NSLog(@"%@", NSStringFromCGPoint(translateInContainer));
+
+    self.bottomConstraint.constant = MIN(0, self.bottomConstraint.constant + translateInContainer.y);
+    CGRect keyboardFrame = self.keyboardView.frame;
+    keyboardFrame.origin.y += translateInContainer.y;
+    self.keyboardView.frame = keyboardFrame;
+
+    if (self.bottomConstraint.constant == 0) {
+        [self.textView resignFirstResponder];
+    }
+
+//
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {

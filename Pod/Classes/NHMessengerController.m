@@ -157,7 +157,7 @@
     self.panGesture.delegate = self;
     [self.tableView addGestureRecognizer:self.panGesture];
 
-    if (self.tableView.keyboardDismissMode == UIScrollViewKeyboardDismissModeInteractive) {
+    if (self.tableView.keyboardDismissMode != UIScrollViewKeyboardDismissModeOnDrag) {
         self.isInteractive = YES;
         self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeNone;
     }

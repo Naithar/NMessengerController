@@ -13,6 +13,7 @@ Pod::Spec.new do |s|
   s.summary          = "Custom messenger controller"
   s.description      = <<-DESC
                        Custrom messenger controller with interactive dismissal..
+                        DESC
   s.homepage         = "https://github.com/naithar/NMessengerController"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'

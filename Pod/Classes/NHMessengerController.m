@@ -10,7 +10,7 @@
 
 @interface NHMessengerController ()<UIGestureRecognizerDelegate>
 
-@property (weak, nonatomic) UITableView *tableView;
+@property (weak, nonatomic) UIScrollView *scrollView;
 @property (weak, nonatomic) UIView *superview;
 
 @property (strong, nonatomic) UIView *container;
@@ -34,16 +34,16 @@
 
 @implementation NHMessengerController
 
-- (instancetype)initWithTableView:(UITableView*)tableView {
-    return [self initWithTableView:tableView
-                      andSuperview:tableView];
+- (instancetype)initWithScrollView:(UIScrollView*)scrollView {
+    return [self initWithScrollView:scrollView
+                      andSuperview:scrollView];
 }
 
-- (instancetype)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithScrollView:(UIScrollView*)scrollView
                      andSuperview:(UIView*)superview {
     self = [super init];
     if (self) {
-        _tableView = tableView;
+        _scrollView = scrollView;
         _superview = superview;
         [self commonInit];
     }
@@ -51,6 +51,8 @@
 }
 
 - (void)commonInit {
+    [[UIApplication sharedApplication].keyWindow endEditing:YES];
+    
     self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.superview.bounds.size.width, 50)];
     [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.container.backgroundColor = [UIColor redColor];
@@ -103,7 +105,7 @@
                                    object:nil
                                    queue:nil
                                    usingBlock:^(NSNotification *note) {
-                                       __strong __typeof(weakSelf) strongSelf = self;
+                                       __strong __typeof(weakSelf) strongSelf = weakSelf;
 
                                        [strongSelf processKeyboardNotification:note.userInfo];
     }];
@@ -113,7 +115,7 @@
                                    object:nil
                                    queue:nil
                                    usingBlock:^(NSNotification *note) {
-                                       __strong __typeof(weakSelf) strongSelf = self;
+                                       __strong __typeof(weakSelf) strongSelf = weakSelf;
 
                                        [strongSelf processKeyboardNotification:note.userInfo];
 
@@ -125,7 +127,7 @@
                                    object:nil
                                    queue:nil
                                    usingBlock:^(NSNotification *note) {
-                                       __strong __typeof(weakSelf) strongSelf = self;
+                                       __strong __typeof(weakSelf) strongSelf = weakSelf;
 
                                        [strongSelf processKeyboardNotification:note.userInfo];
 
@@ -137,7 +139,7 @@
                                  object:nil
                                  queue:nil
                                  usingBlock:^(NSNotification *note) {
-                                     __strong __typeof(weakSelf) strongSelf = self;
+                                     __strong __typeof(weakSelf) strongSelf = weakSelf;
                                      [strongSelf getKeyboardViewFromFirstResponder:note.object];
                                  }];
 
@@ -146,7 +148,7 @@
                                  object:nil
                                  queue:nil
                                  usingBlock:^(NSNotification *note) {
-                                     __strong __typeof(weakSelf) strongSelf = self;
+                                     __strong __typeof(weakSelf) strongSelf = weakSelf;
                                      [strongSelf getKeyboardViewFromFirstResponder:note.object];
                                  }];
 
@@ -155,11 +157,11 @@
     self.panGesture.maximumNumberOfTouches = 1;
     self.panGesture.minimumNumberOfTouches = 1;
     self.panGesture.delegate = self;
-    [self.tableView addGestureRecognizer:self.panGesture];
+    [self.scrollView addGestureRecognizer:self.panGesture];
 
-    if (self.tableView.keyboardDismissMode != UIScrollViewKeyboardDismissModeOnDrag) {
+    if (self.scrollView.keyboardDismissMode != UIScrollViewKeyboardDismissModeOnDrag) {
         self.isInteractive = YES;
-        self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeNone;
+        self.scrollView.keyboardDismissMode = UIScrollViewKeyboardDismissModeNone;
     }
     else {
         self.isInteractive = NO;
@@ -292,12 +294,15 @@
 
 
 - (void)dealloc {
+    [[UIApplication sharedApplication].keyWindow endEditing:YES];
     [[NSNotificationCenter defaultCenter] removeObserver:self.changeKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.showKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.hideKeyboardObserver];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.foundResponderForTextView];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.foundResponderForTextField];
     self.keyboardView.userInteractionEnabled = YES;
     self.keyboardView.hidden = NO;
-    [self.tableView removeGestureRecognizer:self.panGesture];
+    [self.scrollView removeGestureRecognizer:self.panGesture];
     self.panGesture.delegate = nil;
 }
 @end

@@ -10,8 +10,8 @@
 
 @interface NHMessengerController : NSObject
 
-- (instancetype)initWithTableView:(UITableView*)tableView;
-- (instancetype)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithScrollView:(UIScrollView*)scrollView;
+- (instancetype)initWithScrollView:(UIScrollView*)scrollView
                      andSuperview:(UIView*)superview;
 
 @end

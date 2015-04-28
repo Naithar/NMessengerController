@@ -6,11 +6,185 @@
 //
 //
 
-#import "NMessengerController.h"
+#import "NHMessengerController.h"
 
-@implementation NMessengerController
+@interface NHMessengerController ()<UIGestureRecognizerDelegate>
+
+@property (weak, nonatomic) UITableView *tableView;
+@property (weak, nonatomic) UIView *superview;
+
+@property (strong, nonatomic) UIView *container;
+@property (strong, nonatomic) NSLayoutConstraint *bottomConstraint;
+
+@property (strong, nonatomic) UITextView *textView;
+
+@property (strong, nonatomic) id changeKeyboardObserver;
+@property (strong, nonatomic) id showKeyboardObserver;
+@property (strong, nonatomic) id hideKeyboardObserver;
+
+@property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
 @end
+
+@implementation NHMessengerController
+
+- (instancetype)initWithTableView:(UITableView*)tableView {
+    return [self initWithTableView:tableView
+                      andSuperview:tableView];
+}
+
+- (instancetype)initWithTableView:(UITableView*)tableView
+                     andSuperview:(UIView*)superview {
+    self = [super init];
+    if (self) {
+        _tableView = tableView;
+        _superview = superview;
+        [self commonInit];
+    }
+    return self;
+}
+
+- (void)commonInit {
+    self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.superview.bounds.size.width, 50)];
+    [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
+    self.container.backgroundColor = [UIColor redColor];
+
+    self.bottomConstraint = [NSLayoutConstraint constraintWithItem:self.container
+                                                         attribute:NSLayoutAttributeBottom
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:self.superview
+                                                         attribute:NSLayoutAttributeBottom
+                                                        multiplier:1.0
+                                                          constant:0];
+
+    [self.superview addSubview:self.container];
+    [self.superview bringSubviewToFront:self.container];
+    [self.superview addConstraint:self.bottomConstraint];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.container
+                                                               attribute:NSLayoutAttributeHeight
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeHeight
+                                                              multiplier:0
+                                                                constant:50]];
+
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.container
+                                                               attribute:NSLayoutAttributeLeft
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.superview
+                                                               attribute:NSLayoutAttributeLeft
+                                                              multiplier:1.0
+                                                                constant:0]];
+
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.container
+                                                               attribute:NSLayoutAttributeRight
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.superview
+                                                               attribute:NSLayoutAttributeRight
+                                                              multiplier:1.0
+                                                                constant:0]];
+
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 10, self.superview.bounds.size.width - 20, 30)];
+    self.textView.backgroundColor = [UIColor greenColor];
+    [self.container addSubview:self.textView];
+
+
+    __weak __typeof(self) weakSelf = self;
+    self.changeKeyboardObserver = [[NSNotificationCenter defaultCenter]
+                                   addObserverForName:UIKeyboardWillChangeFrameNotification
+                                   object:nil
+                                   queue:nil
+                                   usingBlock:^(NSNotification *note) {
+                                       __strong __typeof(weakSelf) strongSelf = self;
+
+                                       [strongSelf processKeyboardNotification:note.userInfo];
+    }];
+
+    self.showKeyboardObserver = [[NSNotificationCenter defaultCenter]
+                                   addObserverForName:UIKeyboardWillShowNotification
+                                   object:nil
+                                   queue:nil
+                                   usingBlock:^(NSNotification *note) {
+                                       __strong __typeof(weakSelf) strongSelf = self;
+
+                                       [strongSelf processKeyboardNotification:note.userInfo];
+                                   }];
+
+    self.hideKeyboardObserver = [[NSNotificationCenter defaultCenter]
+                                   addObserverForName:UIKeyboardWillHideNotification
+                                   object:nil
+                                   queue:nil
+                                   usingBlock:^(NSNotification *note) {
+                                       __strong __typeof(weakSelf) strongSelf = self;
+
+                                       [strongSelf processKeyboardNotification:note.userInfo];
+                                   }];
+
+    self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self
+                                                              action:@selector(panGestureAction:)];
+    self.panGesture.delegate = self;
+    [self.tableView addGestureRecognizer:self.panGesture];
+
+}
+
+- (void)processKeyboardNotification:(NSDictionary *)data {
+
+    NSValue *keyboardRect = data[UIKeyboardFrameEndUserInfoKey];
+
+    if (keyboardRect) {
+//        var keyboardFrame = self.parentView?.convertRect(keyboardEndFrame!, fromView: nil) ?? nil
+
+        CGRect rect = [self.superview convertRect:[keyboardRect CGRectValue] fromView:nil];
+
+        CGFloat offset = MAX(0, self.superview.frame.size.height - rect.origin.y);
+
+        self.bottomConstraint.constant = -offset;
+        [self.superview layoutIfNeeded];
+    }
+}
+
+- (void)panGestureAction:(UIPanGestureRecognizer*)recognizer {
+    NSLog(@"%@",recognizer);
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+//var height = keyboardFrame != nil
+////        ? max(0, (self.parentView?.frame.height ?? 0) - (keyboardFrame?.origin.y ?? 0))
+////        : 0
+////
+////        UIView.animateWithDuration(0,
+////                                   delay: 0,
+////                                   options: .BeginFromCurrentState | .TransitionNone,
+////                                   animations: {
+////                                       var newInset = self.originalContentInsets.bottom + height + (self.currentContainerHeight ?? 0)
+////
+////                                       if self.shouldChangeBottomInset?(self, newInset) != false {
+////                                           self.scrollView?.contentInset.bottom = newInset
+////                                           self.scrollView?.scrollIndicatorInsets.bottom = newInset
+////
+////                                           self.didChangeBottomInset?(self, newInset)
+////                                       }
+////
+////                                       self.changeContainerOffset(height)
+////
+////                                       return
+////                                   }, completion: nil)
+
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self.changeKeyboardObserver];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.showKeyboardObserver];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.hideKeyboardObserver];
+    [self.tableView removeGestureRecognizer:self.panGesture];
+    self.panGesture.delegate = nil;
+}
+@end
+
+
 
 //
 //  MessengerController.swift

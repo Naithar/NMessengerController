@@ -8,7 +8,9 @@
 
 #import "NHMessengerController.h"
 
-@interface NHMessengerController ()<UIGestureRecognizerDelegate>
+@interface NHMessengerController ()<UIGestureRecognizerDelegate>{
+    Class responderType;
+}
 
 @property (weak, nonatomic) UIScrollView *scrollView;
 @property (weak, nonatomic) UIView *superview;
@@ -16,7 +18,7 @@
 @property (strong, nonatomic) UIView *container;
 @property (strong, nonatomic) NSLayoutConstraint *bottomConstraint;
 
-@property (strong, nonatomic) UITextView *textView;
+@property (strong, nonatomic) id textInputResponder;
 
 @property (strong, nonatomic) id changeKeyboardObserver;
 @property (strong, nonatomic) id showKeyboardObserver;
@@ -41,10 +43,17 @@
 
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView
                      andSuperview:(UIView*)superview {
+    return [self initWithScrollView:scrollView andSuperview:superview andTextInputClass:[UITextView class]];
+}
+
+- (instancetype)initWithScrollView:(UIScrollView*)scrollView
+                      andSuperview:(UIView*)superview
+                 andTextInputClass:(Class)textInputClass {
     self = [super init];
     if (self) {
         _scrollView = scrollView;
         _superview = superview;
+        responderType = textInputClass;
         [self commonInit];
     }
     return self;
@@ -53,7 +62,7 @@
 - (void)commonInit {
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
     
-    self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.superview.bounds.size.width, 50)];
+    self.container = [[UIView alloc] initWithFrame:CGRectZero];
     [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.container.backgroundColor = [UIColor redColor];
 
@@ -71,7 +80,7 @@
 
     [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.container
                                                                attribute:NSLayoutAttributeHeight
-                                                               relatedBy:NSLayoutRelationEqual
+                                                               relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                   toItem:self.container
                                                                attribute:NSLayoutAttributeHeight
                                                               multiplier:0
@@ -93,10 +102,49 @@
                                                               multiplier:1.0
                                                                 constant:0]];
 
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 10, self.superview.bounds.size.width - 20, 30)];
-    self.textView.backgroundColor = [UIColor greenColor];
-    self.textView.inputAccessoryView = [UIView new];
-    [self.container addSubview:self.textView];
+    self.textInputResponder = [[responderType alloc] initWithFrame:CGRectZero];
+    ((UIView*)self.textInputResponder).backgroundColor = [UIColor greenColor];
+    if ([self.textInputResponder isKindOfClass:[UIView class]]) {
+
+        [((UIView*)self.textInputResponder) setTranslatesAutoresizingMaskIntoConstraints:NO];
+        if ([self.textInputResponder respondsToSelector:@selector(setInputAccessoryView:)]) {
+            [self.textInputResponder performSelector:@selector(setInputAccessoryView:) withObject:[UIView new]];
+        }
+        [self.container addSubview:self.textInputResponder];
+
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.textInputResponder
+                                                               attribute:NSLayoutAttributeTop
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeTop
+                                                              multiplier:1.0
+                                                                constant:10]];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.textInputResponder
+                                                               attribute:NSLayoutAttributeBottom
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeBottom
+                                                              multiplier:1.0
+                                                                constant:-10]];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.textInputResponder
+                                                               attribute:NSLayoutAttributeLeft
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeLeft
+                                                              multiplier:1.0
+                                                                constant:15]];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.textInputResponder
+                                                               attribute:NSLayoutAttributeRight
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeRight
+                                                              multiplier:1.0
+                                                                constant:-15]];
+    }
 
 
     __weak __typeof(self) weakSelf = self;
@@ -119,6 +167,7 @@
 
                                        [strongSelf processKeyboardNotification:note.userInfo];
 
+                                       strongSelf.keyboardView.hidden = NO;
                                        strongSelf.panGesture.enabled = YES;
                                    }];
 
@@ -144,7 +193,7 @@
                                  }];
 
     self.foundResponderForTextField = [[NSNotificationCenter defaultCenter]
-                                 addObserverForName:UITextViewTextDidBeginEditingNotification
+                                 addObserverForName:UITextFieldTextDidBeginEditingNotification
                                  object:nil
                                  queue:nil
                                  usingBlock:^(NSNotification *note) {
@@ -185,7 +234,9 @@
 }
 
 - (void)getKeyboardViewFromFirstResponder:(UIResponder*)responder {
-    if (responder.inputAccessoryView) {
+    if (responder.inputAccessoryView
+        && !self.keyboardView) {
+        self.keyboardView.hidden = NO;
         self.keyboardView = responder.inputAccessoryView.superview;
         self.keyboardView.hidden = NO;
     }
@@ -196,6 +247,9 @@
     }
     
     if (!self.keyboardView) {
+        if ([self.textInputResponder respondsToSelector:@selector(inputAccessoryView)]) {
+            self.keyboardView = ((UIResponder*)self.textInputResponder).inputAccessoryView.superview;
+        }
         return;
     }
 
@@ -210,7 +264,7 @@
     switch (recognizer.state) {
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged: {
-            self.keyboardView.userInteractionEnabled = NO;
+//            self.keyboardView.userInteractionEnabled = NO;
             CGRect keyboardFrame = self.keyboardView.frame;
             CGFloat keyboardHeight = keyboardFrame.size.height;
 
@@ -250,14 +304,16 @@
                                      CGFloat offset = (velocityInView.y < 0) ? keyboardHeight : 0;
                                      self.keyboardView.frame = keyboardFrame;
                                      self.bottomConstraint.constant = -offset;
+
                                      [self.container setNeedsLayout];
                                      [self.container layoutIfNeeded];
                                  }
                                  completion:^(BOOL _){
-                                     self.keyboardView.userInteractionEnabled = YES;
+//                                     self.keyboardView.userInteractionEnabled = YES;
                                      if (velocityInView.y >= 0) {
                                      self.keyboardView.hidden = YES;
-                                     [self.textView resignFirstResponder];
+                                     [[UIApplication sharedApplication].keyWindow endEditing:YES];
+
                                      }
                                  }];
 //            }

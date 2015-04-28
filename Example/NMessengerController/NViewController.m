@@ -25,7 +25,7 @@
     self.tableView.dataSource = self;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
 
-    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view];
+    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[UITextField class]];
 	// Do any additional setup after loading the view, typically from a nib.
 }
 

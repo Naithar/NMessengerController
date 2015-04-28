@@ -28,6 +28,8 @@
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
 @property (weak, nonatomic) UIView *keyboardView;
+
+@property (nonatomic, assign) BOOL isInteractive;
 @end
 
 @implementation NHMessengerController
@@ -150,8 +152,18 @@
 
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                               action:@selector(panGestureAction:)];
+    self.panGesture.maximumNumberOfTouches = 1;
+    self.panGesture.minimumNumberOfTouches = 1;
     self.panGesture.delegate = self;
     [self.tableView addGestureRecognizer:self.panGesture];
+
+    if (self.tableView.keyboardDismissMode == UIScrollViewKeyboardDismissModeInteractive) {
+        self.isInteractive = YES;
+        self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeNone;
+    }
+    else {
+        self.isInteractive = NO;
+    }
 
 }
 
@@ -177,94 +189,79 @@
     }
 }
 - (void)panGestureAction:(UIPanGestureRecognizer*)recognizer {
+    if (!self.isInteractive) {
+        return;
+    }
+    
     if (!self.keyboardView) {
         return;
     }
 
 
-    CGFloat maxHeight = [[UIScreen mainScreen] bounds].size.height;
+    CGFloat maxHeight = self.superview.bounds.size.height;
 
     CGPoint pointInView = [recognizer locationInView:self.superview];
-    CGPoint translation = [recognizer translationInView:self.superview];
+    CGPoint velocityInView = [recognizer velocityInView:self.superview];
     [recognizer setTranslation:CGPointZero inView:self.superview];
+//    BOOL keyboardIsDismissing = CGRectContainsPoint(CGRectInset(self.container.frame, 0, -5), pointInView);
+
+    switch (recognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        case UIGestureRecognizerStateChanged: {
+            self.keyboardView.userInteractionEnabled = NO;
+            CGRect keyboardFrame = self.keyboardView.frame;
+            CGFloat keyboardHeight = keyboardFrame.size.height;
+
+            keyboardFrame.origin.y = pointInView.y + self.container.bounds.size.height;
+
+            keyboardFrame.origin.y = MIN(keyboardFrame.origin.y, maxHeight);
+            keyboardFrame.origin.y = MAX(keyboardFrame.origin.y, maxHeight - keyboardHeight);
+
+            if (CGRectGetMinY(keyboardFrame) == CGRectGetMinY(self.keyboardView.frame)) {
+                return;
+            }
 
 
-    __block CGRect keyboardFrame = self.keyboardView.frame;
-    CGFloat keyboardHeight = keyboardFrame.size.height;
 
 
-    BOOL keyboardIsDismissing = CGRectContainsPoint(CGRectInset(self.container.frame, 0, -5), pointInView);
-
-    NSLog(@"%d", keyboardIsDismissing);
-
-    keyboardFrame.origin.y = pointInView.y + self.container.bounds.size.height;
-
-    //  bound frame between bottom of view and height of keyboard
-    keyboardFrame.origin.y = MIN(keyboardFrame.origin.y, maxHeight);
-    keyboardFrame.origin.y = MAX(keyboardFrame.origin.y, maxHeight - keyboardHeight);
-
-    if (CGRectGetMinY(keyboardFrame) == CGRectGetMinY(self.keyboardView.frame)) {
-        return;
+            [UIView animateWithDuration:0.0
+                                  delay:0.0
+                                options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
+                             animations:^{
+                                 CGFloat offset = MAX(0, self.superview.frame.size.height - keyboardFrame.origin.y);
+                                 self.keyboardView.frame = keyboardFrame;
+                                 self.bottomConstraint.constant = -offset;
+                                 [self.container setNeedsLayout];
+                                 [self.container layoutIfNeeded];
+                             }
+                             completion:nil];
+        } break;
+        default: {
+//            if (keyboardIsDismissing) {
+                [UIView animateWithDuration:0.3
+                                      delay:0.0
+                                    options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
+                                 animations:^{
+                                     CGRect keyboardFrame = self.keyboardView.frame;
+                                     CGFloat keyboardHeight = keyboardFrame.size.height;
+                                     keyboardFrame.origin.y = maxHeight - ((velocityInView.y < 0) ? keyboardHeight : 0);
+                                     CGFloat offset = (velocityInView.y < 0) ? keyboardHeight : 0;
+                                     self.keyboardView.frame = keyboardFrame;
+                                     self.bottomConstraint.constant = -offset;
+                                     [self.container setNeedsLayout];
+                                     [self.container layoutIfNeeded];
+                                 }
+                                 completion:^(BOOL _){
+                                     self.keyboardView.userInteractionEnabled = YES;
+                                     if (velocityInView.y >= 0) {
+                                     self.keyboardView.hidden = YES;
+                                     [self.textView resignFirstResponder];
+                                     }
+                                 }];
+//            }
+        } break;
     }
 
-//    self.keyboardView.frame = keyboardFrame;
-
-
-    [UIView animateWithDuration:0.0
-                          delay:0.0
-                        options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
-                     animations:^{
-
-                         CGFloat offset = MAX(0, self.superview.frame.size.height - keyboardFrame.origin.y);
-
-//                         keyboardFrame.origin.y = self.superview.bounds.size.height - offset;
-                         self.keyboardView.frame = keyboardFrame;
-                         self.bottomConstraint.constant = -offset;
-                            [self.container setNeedsLayout];
-                         [self.container layoutIfNeeded];
-
-    NSLog(@"origin = %f, offset = %f", keyboardFrame.origin.y, offset);
-                     }
-                     completion:nil];
-
-//    //
-
-//    CGPoint pointInView = [recognizer locationInView:self.container];
-//    CGPoint translateInContainer = [recognizer translationInView:self.container];
-//    [recognizer setTranslation:CGPointZero inView:self.container];
-//
-//
-//    if (!CGRectContainsPoint(self.container.bounds, pointInView)) {
-//
-////        if (pointInView.y < 0) {
-////            self.bottomConstraint.constant -= translateInContainer.y;
-////            CGRect keyboardFrame = self.keyboardView.frame;
-////            keyboardFrame.origin.y -= translateInContainer.y;
-////            self.keyboardView.frame = keyboardFrame;
-////
-////        }
-//        return;
-//    }
-//
-//
-//
-//    NSLog(@"%@", NSStringFromCGPoint(translateInContainer));
-//
-//    [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
-//                     animations:^{
-//                         self.bottomConstraint.constant = MIN(0, self.bottomConstraint.constant + translateInContainer.y);
-//                         CGRect keyboardFrame = self.keyboardView.frame;
-//                         keyboardFrame.origin.y += translateInContainer.y;
-//                         self.keyboardView.frame = keyboardFrame;
-//
-//                         if (self.bottomConstraint.constant == 0) {
-//                             self.keyboardView.hidden = YES;
-//                             [self.textView resignFirstResponder];
-//                         }
-//                     } completion:nil];
-
-
-//
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
@@ -298,6 +295,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self.changeKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.showKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.hideKeyboardObserver];
+    self.keyboardView.userInteractionEnabled = YES;
     self.keyboardView.hidden = NO;
     [self.tableView removeGestureRecognizer:self.panGesture];
     self.panGesture.delegate = nil;

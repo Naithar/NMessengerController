@@ -12,4 +12,6 @@
 
 @property (nonatomic, assign) CGSize contentSize;
 
+- (void)addSubview:(UIView *)view andIndex:(NSUInteger)index;
+- (void)addSubview:(UIView *)view withSize:(CGSize)size andIndex:(NSUInteger)index;
 @end

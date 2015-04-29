@@ -222,14 +222,14 @@
 
     self.leftView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
     self.leftView.backgroundColor = [UIColor lightGrayColor];
-    self.leftView.contentSize = CGSizeMake(100, 100);
     [self.leftView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    self.leftView.clipsToBounds = YES;
     [self.container addSubview:self.leftView];
 
     self.rightView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
     [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.rightView.backgroundColor = [UIColor lightGrayColor];
-    self.rightView.contentSize = CGSizeMake(0, 100);
+    self.rightView.contentSize = CGSizeMake(0, 50);
     [self.container addSubview:self.rightView];
 
     self.leftLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
@@ -265,7 +265,7 @@
 
     self.topTextViewInset = [NSLayoutConstraint constraintWithItem:self.textInputResponder
                                                          attribute:NSLayoutAttributeTop
-                                                         relatedBy:NSLayoutRelationEqual
+                                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                             toItem:self.topView
                                                          attribute:NSLayoutAttributeBottom
                                                         multiplier:1.0

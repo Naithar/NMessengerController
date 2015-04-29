@@ -41,6 +41,14 @@
     self.messengerController.containerInsets = UIEdgeInsetsMake(5, 15, 5, 15);
 
     ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
+
+    UIView *v = [UIView new];
+    v.backgroundColor = [UIColor brownColor];
+    [self.messengerController.leftView addSubview:v withSize:CGSizeMake(35, 35) andIndex:0];
+
+    UIView *v1 = [UIView new];
+    v1.backgroundColor = [UIColor grayColor];
+    [self.messengerController.leftView addSubview:v1 withSize:CGSizeMake(35, 35) andIndex:1];
 	// Do any additional setup after loading the view, typically from a nib.
 }
 

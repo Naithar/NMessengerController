@@ -64,6 +64,9 @@
 @property (nonatomic, strong) UIButton *sendButton;
 
 @property (nonatomic, assign) BOOL isInteractive;
+
+@property (nonatomic, assign) UIEdgeInsets keyboardInsets;
+@property (nonatomic, assign) UIEdgeInsets messengerInsets;
 @end
 
 @implementation NHMessengerController
@@ -97,6 +100,8 @@
     _containerInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     _separatorInsets = UIEdgeInsetsMake(0, 0, 1, 0);
     _sendButtonSize = CGSizeMake(60, 40);
+    _initialScrollViewInsets = self.scrollView.contentInset;
+    _additionalInsets = UIEdgeInsetsZero;
 
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
     
@@ -186,7 +191,7 @@
     self.topView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     [self.topView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.topView.backgroundColor = [UIColor darkGrayColor];
-    self.topView.contentSize = CGSizeMake(50, 50);
+//    self.topView.contentSize = CGSizeMake(50, 50);
     [self.container addSubview:self.topView];
 
     self.bottomSeparatorInset = [NSLayoutConstraint constraintWithItem:self.topView
@@ -223,7 +228,7 @@
     self.bottomView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     [self.bottomView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.bottomView.backgroundColor = [UIColor darkGrayColor];
-    self.bottomView.contentSize = CGSizeMake(50, 50);
+//    self.bottomView.contentSize = CGSizeMake(50, 50);
     [self.container addSubview:self.bottomView];
 
     self.leftBottomViewInset = [NSLayoutConstraint constraintWithItem:self.bottomView
@@ -473,6 +478,8 @@
     [self.superview setNeedsLayout];
     [self.superview layoutIfNeeded];
 
+    _messengerInsets = UIEdgeInsetsMake(0, 0, self.container.bounds.size.height, 0);
+
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -527,6 +534,8 @@
         CGFloat offset = MAX(0, self.superview.frame.size.height - rect.origin.y);
 
         self.bottomConstraint.constant = -offset;
+        self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
+        [self updateInsets];
         [self.superview layoutIfNeeded];
     }
 }
@@ -585,6 +594,8 @@
                                  CGFloat offset = MAX(0, self.superview.frame.size.height - keyboardFrame.origin.y);
                                  self.keyboardView.frame = keyboardFrame;
                                  self.bottomConstraint.constant = -offset;
+                                 self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
+                                 [self updateInsets];
 //                                 [self.container setNeedsLayout];
                                  [self.superview layoutIfNeeded];
                              }
@@ -602,12 +613,15 @@
                                      CGFloat offset = (velocityInView.y < 0) ? keyboardHeight : 0;
                                      self.keyboardView.frame = keyboardFrame;
                                      self.bottomConstraint.constant = -offset;
+                                     self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
+                                     [self updateInsets];
 
 //                                     [self.container setNeedsLayout];
                                      [self.superview layoutIfNeeded];
                                  }
                                  completion:^(BOOL _){
 //                                     self.keyboardView.userInteractionEnabled = YES;
+                                     [self updateInsets];
                                      if (velocityInView.y >= 0) {
                                      self.keyboardView.hidden = YES;
                                      [[UIApplication sharedApplication].keyWindow endEditing:YES];
@@ -656,6 +670,10 @@
 
     [self.superview setNeedsLayout];
     [self.superview layoutIfNeeded];
+
+    self.messengerInsets = UIEdgeInsetsMake(0, 0, self.container.bounds.size.height, 0);
+
+    [self updateInsets];
 }
 
 
@@ -707,7 +725,28 @@
 }
 
 - (void)sendButtonAction:(UIButton*)sender {
+    [self scrollToBottomAnimated:YES];
     NSLog(@"send");
+}
+
+- (void)updateInsets {
+    self.scrollView.contentInset = UIEdgeInsetsMake(self.scrollView.contentInset.top,
+                                                    self.scrollView.contentInset.left,
+                                                    self.initialScrollViewInsets.bottom
+                                                    + self.additionalInsets.bottom
+                                                    + self.messengerInsets.bottom
+                                                    + self.keyboardInsets.bottom,
+                                                    self.scrollView.contentInset.right);
+
+    self.scrollView.scrollIndicatorInsets = self.scrollView.contentInset;
+}
+
+- (void)scrollToBottom {
+    [self scrollToBottomAnimated:NO];
+}
+
+- (void)scrollToBottomAnimated:(BOOL)animated {
+    [self.scrollView scrollRectToVisible:CGRectMake(0, self.scrollView.contentSize.height - 1, 1, 1) animated:animated];
 }
 
 - (void)dealloc {

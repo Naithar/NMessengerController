@@ -33,6 +33,7 @@
 @property (strong, readonly, nonatomic) NHContainerView *leftView;
 @property (strong, readonly, nonatomic) NHContainerView *bottomView;
 @property (strong, readonly, nonatomic) NHContainerView *rightView;
+@property (nonatomic, readonly, strong) UIButton *sendButton;
 @property (strong, readonly, nonatomic) UIView *separatorView;
 
 @property (nonatomic, assign) UIEdgeInsets initialScrollViewInsets;

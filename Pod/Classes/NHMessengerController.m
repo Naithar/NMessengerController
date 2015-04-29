@@ -34,6 +34,8 @@
 @property (strong, nonatomic) NSLayoutConstraint *topRightViewInset;
 @property (strong, nonatomic) NSLayoutConstraint *bottomRightViewInset;
 
+@property (nonatomic, strong) UIButton *sendButton;
+
 @property (strong, nonatomic) UIView *separatorView;
 @property (strong, nonatomic) NSLayoutConstraint *rightSeparatorInset;
 @property (strong, nonatomic) NSLayoutConstraint *leftSeparatorInset;
@@ -60,8 +62,6 @@
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
 @property (weak, nonatomic) UIView *keyboardView;
-
-@property (nonatomic, strong) UIButton *sendButton;
 
 @property (nonatomic, assign) BOOL isInteractive;
 

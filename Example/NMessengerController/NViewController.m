@@ -39,6 +39,8 @@
     self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
     self.messengerController.separatorInsets = UIEdgeInsetsMake(0, 15, 5, 15);
     self.messengerController.containerInsets = UIEdgeInsetsMake(5, 15, 5, 15);
+
+    ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
 	// Do any additional setup after loading the view, typically from a nib.
 }
 

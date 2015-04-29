@@ -50,6 +50,9 @@
 @property (strong, nonatomic) id foundResponderForTextView;
 @property (strong, nonatomic) id foundResponderForTextField;
 
+@property (strong, nonatomic) id textFieldTextObserver;
+@property (strong, nonatomic) id textViewTextObserver;
+
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
 @property (weak, nonatomic) UIView *keyboardView;
@@ -381,6 +384,28 @@
                                      [strongSelf getKeyboardViewFromFirstResponder:note.object];
                                  }];
 
+    self.textFieldTextObserver = [[NSNotificationCenter defaultCenter]
+                                  addObserverForName:UITextFieldTextDidChangeNotification
+                                  object:self.textInputResponder
+                                  queue:nil
+                                  usingBlock:^(NSNotification *note) {
+                                      __strong __typeof(weakSelf) strongSelf = weakSelf;
+                                      [strongSelf processText];
+                                  }];
+
+    self.textViewTextObserver = [[NSNotificationCenter defaultCenter]
+                                  addObserverForName:UITextViewTextDidChangeNotification
+                                  object:self.textInputResponder
+                                  queue:nil
+                                  usingBlock:^(NSNotification *note) {
+                                      __strong __typeof(weakSelf) strongSelf = weakSelf;
+                                      [strongSelf processText];
+                                  }];
+
+    if ([self.textInputResponder respondsToSelector:@selector(text)]) {
+        [self.textInputResponder addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
+    }
+
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                               action:@selector(panGestureAction:)];
     self.panGesture.maximumNumberOfTouches = 1;
@@ -396,6 +421,42 @@
         self.isInteractive = NO;
     }
 
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if ([keyPath isEqualToString:@"text"]
+        && object == self.textInputResponder) {
+        NSLog(@"change %@ = ", change);
+
+        NSString *oldText = change[NSKeyValueChangeOldKey];
+        NSString *newText = change[NSKeyValueChangeNewKey];
+
+        if ([oldText isEqualToString:newText]) {
+            return;
+        }
+
+        [self processText];
+    }
+}
+- (void)processText {
+    if ([self.textInputResponder respondsToSelector:@selector(text)]) {
+        NSString *currentText = [self.textInputResponder text];
+
+        CGFloat newSize = (currentText && [currentText length] > 0) ? 100 : 0;
+
+        if (newSize == self.rightView.contentSize.width) {
+            return;
+        }
+
+        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
+            self.rightView.contentSize = CGSizeMake(newSize, 100);
+            [self.rightView invalidateIntrinsicContentSize];
+            [self.superview layoutIfNeeded];
+        } completion:nil];
+    }
 }
 
 - (void)processKeyboardNotification:(NSDictionary *)data {
@@ -553,11 +614,16 @@
 
 - (void)dealloc {
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
+    if ([self.textInputResponder respondsToSelector:@selector(text)]) {
+        [self.textInputResponder removeObserver:self forKeyPath:@"text" context:nil];
+    }
     [[NSNotificationCenter defaultCenter] removeObserver:self.changeKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.showKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.hideKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.foundResponderForTextView];
     [[NSNotificationCenter defaultCenter] removeObserver:self.foundResponderForTextField];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.textFieldTextObserver];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.textViewTextObserver];
     self.keyboardView.userInteractionEnabled = YES;
     self.keyboardView.hidden = NO;
     [self.scrollView removeGestureRecognizer:self.panGesture];

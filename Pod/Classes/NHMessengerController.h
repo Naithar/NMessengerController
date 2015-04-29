@@ -13,11 +13,13 @@
 
 @property (nonatomic, assign) UIEdgeInsets textViewInsets;
 @property (nonatomic, assign) UIEdgeInsets containerInsets;
+@property (nonatomic, assign) UIEdgeInsets separatorInsets;
 
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
 @property (strong, readonly, nonatomic) NHContainerView *leftView;
 @property (strong, readonly, nonatomic) NHContainerView *rightView;
+@property (strong, readonly, nonatomic) UIView *separatorView;
 
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView;
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView

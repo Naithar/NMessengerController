@@ -34,6 +34,11 @@
 @property (strong, nonatomic) NSLayoutConstraint *topRightViewInset;
 @property (strong, nonatomic) NSLayoutConstraint *bottomRightViewInset;
 
+@property (strong, nonatomic) UIView *separatorView;
+@property (strong, nonatomic) NSLayoutConstraint *rightSeparatorInset;
+@property (strong, nonatomic) NSLayoutConstraint *leftSeparatorInset;
+@property (strong, nonatomic) NSLayoutConstraint *bottomSeparatorInset;
+
 @property (strong, nonatomic) id changeKeyboardObserver;
 @property (strong, nonatomic) id showKeyboardObserver;
 @property (strong, nonatomic) id hideKeyboardObserver;
@@ -77,6 +82,7 @@
 
     _textViewInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     _containerInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    _separatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
 
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
     
@@ -121,6 +127,48 @@
                                                               multiplier:1.0
                                                                 constant:0]];
 
+    self.separatorView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.separatorView.backgroundColor = [UIColor blackColor];
+    [self.separatorView setTranslatesAutoresizingMaskIntoConstraints:NO];
+
+    [self.container addSubview:self.separatorView];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.separatorView
+                                                               attribute:NSLayoutAttributeTop
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeTop
+                                                              multiplier:1.0
+                                                                constant:0]];
+
+    self.leftSeparatorInset = [NSLayoutConstraint constraintWithItem:self.separatorView
+                                                           attribute:NSLayoutAttributeLeft
+                                                           relatedBy:NSLayoutRelationEqual
+                                                              toItem:self.container
+                                                           attribute:NSLayoutAttributeLeft
+                                                          multiplier:1.0
+                                                            constant:self.separatorInsets.left];
+
+    [self.container addConstraint:self.leftSeparatorInset];
+
+    self.rightSeparatorInset = [NSLayoutConstraint constraintWithItem:self.separatorView
+                                                           attribute:NSLayoutAttributeRight
+                                                           relatedBy:NSLayoutRelationEqual
+                                                              toItem:self.container
+                                                           attribute:NSLayoutAttributeRight
+                                                          multiplier:1.0
+                                                            constant:-self.separatorInsets.right];
+
+    [self.container addConstraint:self.rightSeparatorInset];
+
+    [self.separatorView addConstraint:[NSLayoutConstraint constraintWithItem:self.separatorView
+                                                                   attribute:NSLayoutAttributeHeight
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:self.separatorView
+                                                                   attribute:NSLayoutAttributeHeight
+                                                                  multiplier:0
+                                                                    constant:0.5]];
+
     self.textInputResponder = [[responderType alloc] initWithFrame:CGRectZero];
     ((UIView*)self.textInputResponder).backgroundColor = [UIColor greenColor];
     [((UIView*)self.textInputResponder) setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -144,8 +192,6 @@
         [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
             self.rightView.contentSize = CGSizeMake(100, 100);
             [self.rightView invalidateIntrinsicContentSize];
-//            [self.container setNeedsLayout];
-//            [self.container layoutIfNeeded];
             [self.superview layoutIfNeeded];
         } completion:nil];
     });
@@ -283,6 +329,7 @@
 
                                        [strongSelf processKeyboardNotification:note.userInfo];
 
+//                                       strongSelf.keyboardView.hidden = NO;
                                        strongSelf.panGesture.enabled = NO;
                                    }];
 

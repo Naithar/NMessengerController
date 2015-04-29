@@ -9,6 +9,14 @@
 #import "NViewController.h"
 #import <NHMessengerController.h>
 
+@implementation NTextView
+
+- (CGSize)intrinsicContentSize {
+    return CGSizeMake(UIViewNoIntrinsicMetric, self.fakeContentSize.height);
+}
+
+@end
+
 @interface NViewController ()<UITableViewDelegate, UITableViewDataSource>
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
@@ -25,7 +33,10 @@
     self.tableView.dataSource = self;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
 
-    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[UITextField class]];
+    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NTextView class]];
+
+    ((NTextView*)self.messengerController.textInputResponder).fakeContentSize = CGSizeMake(300, 100);
+    self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
 	// Do any additional setup after loading the view, typically from a nib.
 }
 

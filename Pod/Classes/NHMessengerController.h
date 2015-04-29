@@ -10,6 +10,8 @@
 
 @interface NHMessengerController : NSObject
 
+@property (nonatomic, assign) UIEdgeInsets textViewInsets;
+
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
 

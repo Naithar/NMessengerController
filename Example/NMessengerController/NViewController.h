@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+@interface NTextView : UITextView
+
+@property (nonatomic, assign) CGSize fakeContentSize;
+
+@end
+
 @interface NViewController : UIViewController
 
 @end

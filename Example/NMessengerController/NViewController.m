@@ -37,6 +37,8 @@
 
     ((NTextView*)self.messengerController.textInputResponder).fakeContentSize = CGSizeMake(300, 100);
     self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
+    self.messengerController.separatorInsets = UIEdgeInsetsMake(0, 15, 5, 15);
+    self.messengerController.containerInsets = UIEdgeInsetsMake(5, 15, 5, 15);
 	// Do any additional setup after loading the view, typically from a nib.
 }
 

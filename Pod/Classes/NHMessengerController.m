@@ -39,6 +39,10 @@
 @property (strong, nonatomic) NSLayoutConstraint *leftSeparatorInset;
 @property (strong, nonatomic) NSLayoutConstraint *bottomSeparatorInset;
 
+@property (strong, nonatomic) NHContainerView *topView;
+@property (strong, nonatomic) NSLayoutConstraint *rightTopViewInset;
+@property (strong, nonatomic) NSLayoutConstraint *leftTopViewInset;
+
 @property (strong, nonatomic) id changeKeyboardObserver;
 @property (strong, nonatomic) id showKeyboardObserver;
 @property (strong, nonatomic) id hideKeyboardObserver;
@@ -169,6 +173,42 @@
                                                                   multiplier:0
                                                                     constant:0.5]];
 
+    self.topView = [[NHContainerView alloc] initWithFrame:CGRectZero];
+    [self.topView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    self.topView.backgroundColor = [UIColor darkGrayColor];
+    self.topView.contentSize = CGSizeMake(50, 100);
+    [self.container addSubview:self.topView];
+
+    self.bottomSeparatorInset = [NSLayoutConstraint constraintWithItem:self.topView
+                                                             attribute:NSLayoutAttributeTop
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self.separatorView
+                                                             attribute:NSLayoutAttributeBottom
+                                                            multiplier:1.0
+                                                              constant:self.separatorInsets.bottom];
+
+    [self.container addConstraint:self.bottomSeparatorInset];
+
+    self.leftTopViewInset = [NSLayoutConstraint constraintWithItem:self.topView
+                                                         attribute:NSLayoutAttributeLeft
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:self.container
+                                                         attribute:NSLayoutAttributeLeft
+                                                        multiplier:1.0
+                                                          constant:self.containerInsets.left];
+
+    [self.container addConstraint:self.leftTopViewInset];
+
+    self.rightTopViewInset = [NSLayoutConstraint constraintWithItem:self.topView
+                                                             attribute:NSLayoutAttributeRight
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self.container
+                                                             attribute:NSLayoutAttributeRight
+                                                            multiplier:1.0
+                                                              constant:-self.containerInsets.right];
+
+    [self.container addConstraint:self.rightTopViewInset];
+
     self.textInputResponder = [[responderType alloc] initWithFrame:CGRectZero];
     ((UIView*)self.textInputResponder).backgroundColor = [UIColor greenColor];
     [((UIView*)self.textInputResponder) setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -184,19 +224,9 @@
     [self.container addSubview:self.leftView];
 
     self.rightView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
+    [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.rightView.backgroundColor = [UIColor lightGrayColor];
     self.rightView.contentSize = CGSizeMake(0, 100);
-
-
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-            self.rightView.contentSize = CGSizeMake(100, 100);
-            [self.rightView invalidateIntrinsicContentSize];
-            [self.superview layoutIfNeeded];
-        } completion:nil];
-    });
-
-    [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
     [self.container addSubview:self.rightView];
 
     self.leftLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
@@ -221,8 +251,8 @@
     self.topLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
                                                             attribute:NSLayoutAttributeTop
                                                             relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                                               toItem:self.container
-                                                            attribute:NSLayoutAttributeTop
+                                                               toItem:self.topView
+                                                            attribute:NSLayoutAttributeBottom
                                                            multiplier:1.0
                                                              constant:self.containerInsets.top];
 
@@ -233,8 +263,8 @@
     self.topTextViewInset = [NSLayoutConstraint constraintWithItem:self.textInputResponder
                                                          attribute:NSLayoutAttributeTop
                                                          relatedBy:NSLayoutRelationEqual
-                                                            toItem:self.container
-                                                         attribute:NSLayoutAttributeTop
+                                                            toItem:self.topView
+                                                         attribute:NSLayoutAttributeBottom
                                                         multiplier:1.0
                                                           constant:self.textViewInsets.top];
     [self.container addConstraint:self.topTextViewInset];
@@ -288,8 +318,8 @@
     self.topRightViewInset = [NSLayoutConstraint constraintWithItem:self.rightView
                                                          attribute:NSLayoutAttributeTop
                                                          relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                                            toItem:self.container
-                                                         attribute:NSLayoutAttributeTop
+                                                             toItem:self.topView
+                                                          attribute:NSLayoutAttributeBottom
                                                         multiplier:1.0
                                                           constant:self.containerInsets.top];
 
@@ -504,9 +534,21 @@
     self.topRightViewInset.constant = _containerInsets.top;
     self.bottomRightViewInset.constant = - _containerInsets.bottom;
 
+    self.leftTopViewInset.constant = _containerInsets.left;
+    self.rightTopViewInset.constant = - _containerInsets.right;
+
     [self.superview layoutIfNeeded];
 
     [self didChangeValueForKey:@"containerInsets"];
+}
+
+- (void)setSeparatorInsets:(UIEdgeInsets)separatorInsets {
+    [self willChangeValueForKey:@"separatorInsets"];
+    _separatorInsets = separatorInsets;
+    self.leftSeparatorInset.constant = _separatorInsets.left;
+    self.rightSeparatorInset.constant = - _separatorInsets.right;
+    self.bottomSeparatorInset.constant = _separatorInsets.bottom;
+    [self didChangeValueForKey:@"separatorInsets"];
 }
 
 - (void)dealloc {

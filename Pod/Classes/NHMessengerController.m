@@ -61,6 +61,8 @@
 
 @property (weak, nonatomic) UIView *keyboardView;
 
+@property (nonatomic, strong) UIButton *sendButton;
+
 @property (nonatomic, assign) BOOL isInteractive;
 @end
 
@@ -184,7 +186,7 @@
     self.topView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     [self.topView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.topView.backgroundColor = [UIColor darkGrayColor];
-    self.topView.contentSize = CGSizeMake(50, 100);
+    self.topView.contentSize = CGSizeMake(50, 50);
     [self.container addSubview:self.topView];
 
     self.bottomSeparatorInset = [NSLayoutConstraint constraintWithItem:self.topView
@@ -221,7 +223,7 @@
     self.bottomView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     [self.bottomView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.bottomView.backgroundColor = [UIColor darkGrayColor];
-    self.bottomView.contentSize = CGSizeMake(50, 100);
+    self.bottomView.contentSize = CGSizeMake(50, 50);
     [self.container addSubview:self.bottomView];
 
     self.leftBottomViewInset = [NSLayoutConstraint constraintWithItem:self.bottomView
@@ -272,6 +274,12 @@
     self.rightView.hidden = YES;
     self.rightView.contentSize = CGSizeMake(0, self.sendButtonSize.height);
     [self.container addSubview:self.rightView];
+
+    self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.sendButtonSize.width, self.sendButtonSize.height)];
+    [self.sendButton addTarget:self action:@selector(sendButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.sendButton.backgroundColor = [UIColor redColor];
+    [self.sendButton setTitle:@"Send" forState:UIControlStateNormal];
+    [self.rightView addSubview:self.sendButton];
 
     self.leftLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
                                                           attribute:NSLayoutAttributeLeft
@@ -640,8 +648,7 @@
     [self.leftView calculateContentSize];
     [self.leftView invalidateIntrinsicContentSize];
 
-    [self.rightView calculateContentSize];
-    [self.leftView invalidateIntrinsicContentSize];
+    [self.rightView invalidateIntrinsicContentSize];
 
     if ([self.textInputResponder respondsToSelector:@selector(invalidateIntrinsicContentSize)]) {
         [self.textInputResponder invalidateIntrinsicContentSize];
@@ -686,13 +693,21 @@
 
 - (void)setSendButtonSize:(CGSize)sendButtonSize {
     [self willChangeValueForKey:@"sendButtonSize"];
+
+    self.sendButton.frame = CGRectMake(0, 0, sendButtonSize.width, sendButtonSize.height);
     if (CGSizeEqualToSize(self.rightView.contentSize, _sendButtonSize)) {
         self.rightView.contentSize = sendButtonSize;
         [self.rightView invalidateIntrinsicContentSize];
         [self.superview layoutIfNeeded];
     }
+
     _sendButtonSize = sendButtonSize;
+
     [self didChangeValueForKey:@"sendButtonSize"];
+}
+
+- (void)sendButtonAction:(UIButton*)sender {
+    NSLog(@"send");
 }
 
 - (void)dealloc {

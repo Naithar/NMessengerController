@@ -460,6 +460,8 @@
         [self.textInputResponder addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
     }
 
+    [self.container addObserver:self forKeyPath:@"bounds" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
+
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                               action:@selector(panGestureAction:)];
     self.panGesture.maximumNumberOfTouches = 1;
@@ -497,6 +499,21 @@
         }
 
         [self processText];
+    }
+
+    if ([keyPath isEqualToString:@"bounds"]
+        && object == self.container) {
+
+        CGRect oldRect = [change[NSKeyValueChangeOldKey] CGRectValue];
+        CGRect newRect = [change[NSKeyValueChangeNewKey] CGRectValue];
+
+        if (CGRectEqualToRect(oldRect, newRect)) {
+            return;
+        }
+
+        self.messengerInsets = UIEdgeInsetsMake(0, 0, newRect.size.height, 0);
+
+        [self updateInsets];
     }
 }
 - (void)processText {
@@ -754,6 +771,7 @@
     if ([self.textInputResponder respondsToSelector:@selector(text)]) {
         [self.textInputResponder removeObserver:self forKeyPath:@"text" context:nil];
     }
+    [self.container removeObserver:self forKeyPath:@"bounds" context:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self.changeKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.showKeyboardObserver];
     [[NSNotificationCenter defaultCenter] removeObserver:self.hideKeyboardObserver];

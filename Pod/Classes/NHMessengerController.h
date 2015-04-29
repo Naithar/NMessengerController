@@ -29,7 +29,9 @@
 
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
+@property (strong, readonly, nonatomic) NHContainerView *topView;
 @property (strong, readonly, nonatomic) NHContainerView *leftView;
+@property (strong, readonly, nonatomic) NHContainerView *bottomView;
 @property (strong, readonly, nonatomic) NHContainerView *rightView;
 @property (strong, readonly, nonatomic) UIView *separatorView;
 

@@ -17,7 +17,7 @@
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
 @property (strong, readonly, nonatomic) NHContainerView *leftView;
-@property (strong, readonly, nonatomic) NHContainerView *leftView;
+@property (strong, readonly, nonatomic) NHContainerView *rightView;
 
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView;
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView

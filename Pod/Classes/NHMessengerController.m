@@ -24,6 +24,16 @@
 @property (strong, nonatomic) NSLayoutConstraint *topTextViewInset;
 @property (strong, nonatomic) NSLayoutConstraint *bottomTextViewInset;
 
+@property (strong, nonatomic) NHContainerView *leftView;
+@property (strong, nonatomic) NSLayoutConstraint *leftLeftViewInset;
+@property (strong, nonatomic) NSLayoutConstraint *topLeftViewInset;
+@property (strong, nonatomic) NSLayoutConstraint *bottomLeftViewInset;
+
+@property (strong, nonatomic) NHContainerView *rightView;
+@property (strong, nonatomic) NSLayoutConstraint *rightRightViewInset;
+@property (strong, nonatomic) NSLayoutConstraint *topRightViewInset;
+@property (strong, nonatomic) NSLayoutConstraint *bottomRightViewInset;
+
 @property (strong, nonatomic) id changeKeyboardObserver;
 @property (strong, nonatomic) id showKeyboardObserver;
 @property (strong, nonatomic) id hideKeyboardObserver;
@@ -66,12 +76,14 @@
 - (void)commonInit {
 
     _textViewInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    _containerInsets = UIEdgeInsetsMake(5, 5, 5, 5);
 
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
     
     self.container = [[UIView alloc] initWithFrame:CGRectZero];
     [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.container.backgroundColor = [UIColor redColor];
+    self.container.clipsToBounds = YES;
 
     self.bottomConstraint = [NSLayoutConstraint constraintWithItem:self.container
                                                          attribute:NSLayoutAttributeBottom
@@ -115,8 +127,62 @@
     if ([self.textInputResponder respondsToSelector:@selector(setInputAccessoryView:)]) {
         [self.textInputResponder performSelector:@selector(setInputAccessoryView:) withObject:[UIView new]];
     }
-
     [self.container addSubview:self.textInputResponder];
+
+    self.leftView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
+    self.leftView.backgroundColor = [UIColor lightGrayColor];
+    self.leftView.contentSize = CGSizeMake(100, 100);
+    [self.leftView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.container addSubview:self.leftView];
+
+    self.rightView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
+    self.rightView.backgroundColor = [UIColor lightGrayColor];
+    self.rightView.contentSize = CGSizeMake(0, 100);
+
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
+            self.rightView.contentSize = CGSizeMake(100, 100);
+            [self.rightView invalidateIntrinsicContentSize];
+//            [self.container setNeedsLayout];
+//            [self.container layoutIfNeeded];
+            [self.superview layoutIfNeeded];
+        } completion:nil];
+    });
+
+    [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.container addSubview:self.rightView];
+
+    self.leftLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
+                                                          attribute:NSLayoutAttributeLeft
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.container
+                                                          attribute:NSLayoutAttributeLeft
+                                                         multiplier:1.0
+                                                           constant:self.containerInsets.left];
+    [self.container addConstraint:self.leftLeftViewInset];
+
+    self.bottomLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
+                                                            attribute:NSLayoutAttributeBottom
+                                                            relatedBy:NSLayoutRelationEqual
+                                                               toItem:self.container
+                                                            attribute:NSLayoutAttributeBottom
+                                                           multiplier:1.0
+                                                             constant:-self.containerInsets.bottom];
+
+    [self.container addConstraint:self.bottomLeftViewInset];
+
+    self.topLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
+                                                            attribute:NSLayoutAttributeTop
+                                                            relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                               toItem:self.container
+                                                            attribute:NSLayoutAttributeTop
+                                                           multiplier:1.0
+                                                             constant:self.containerInsets.top];
+
+    [self.container addConstraint:self.topLeftViewInset];
+
+
 
     self.topTextViewInset = [NSLayoutConstraint constraintWithItem:self.textInputResponder
                                                          attribute:NSLayoutAttributeTop
@@ -139,8 +205,8 @@
     self.leftTextViewInset = [NSLayoutConstraint constraintWithItem:self.textInputResponder
                                                           attribute:NSLayoutAttributeLeft
                                                           relatedBy:NSLayoutRelationEqual
-                                                             toItem:self.container
-                                                          attribute:NSLayoutAttributeLeft
+                                                             toItem:self.leftView
+                                                          attribute:NSLayoutAttributeRight
                                                          multiplier:1.0
                                                            constant:self.textViewInsets.left];
     [self.container addConstraint:self.leftTextViewInset];
@@ -148,11 +214,40 @@
     self.rightTextViewInset = [NSLayoutConstraint constraintWithItem:self.textInputResponder
                                                            attribute:NSLayoutAttributeRight
                                                            relatedBy:NSLayoutRelationEqual
-                                                              toItem:self.container
-                                                           attribute:NSLayoutAttributeRight
+                                                              toItem:self.rightView
+                                                           attribute:NSLayoutAttributeLeft
                                                           multiplier:1.0
                                                             constant:-self.textViewInsets.right];
     [self.container addConstraint:self.rightTextViewInset];
+
+    self.rightRightViewInset = [NSLayoutConstraint constraintWithItem:self.rightView
+                                                          attribute:NSLayoutAttributeRight
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.container
+                                                          attribute:NSLayoutAttributeRight
+                                                         multiplier:1.0
+                                                           constant:-self.containerInsets.right];
+    [self.container addConstraint:self.rightRightViewInset];
+
+    self.bottomRightViewInset = [NSLayoutConstraint constraintWithItem:self.rightView
+                                                            attribute:NSLayoutAttributeBottom
+                                                            relatedBy:NSLayoutRelationEqual
+                                                               toItem:self.container
+                                                            attribute:NSLayoutAttributeBottom
+                                                           multiplier:1.0
+                                                             constant:-self.containerInsets.bottom];
+
+    [self.container addConstraint:self.bottomRightViewInset];
+
+    self.topRightViewInset = [NSLayoutConstraint constraintWithItem:self.rightView
+                                                         attribute:NSLayoutAttributeTop
+                                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                            toItem:self.container
+                                                         attribute:NSLayoutAttributeTop
+                                                        multiplier:1.0
+                                                          constant:self.containerInsets.top];
+
+    [self.container addConstraint:self.topRightViewInset];
 
 
     __weak __typeof(self) weakSelf = self;
@@ -237,7 +332,7 @@
         CGFloat offset = MAX(0, self.superview.frame.size.height - rect.origin.y);
 
         self.bottomConstraint.constant = -offset;
-        [self.container layoutIfNeeded];
+        [self.superview layoutIfNeeded];
     }
 }
 
@@ -295,8 +390,8 @@
                                  CGFloat offset = MAX(0, self.superview.frame.size.height - keyboardFrame.origin.y);
                                  self.keyboardView.frame = keyboardFrame;
                                  self.bottomConstraint.constant = -offset;
-                                 [self.container setNeedsLayout];
-                                 [self.container layoutIfNeeded];
+//                                 [self.container setNeedsLayout];
+                                 [self.superview layoutIfNeeded];
                              }
                              completion:nil];
         } break;
@@ -313,8 +408,8 @@
                                      self.keyboardView.frame = keyboardFrame;
                                      self.bottomConstraint.constant = -offset;
 
-                                     [self.container setNeedsLayout];
-                                     [self.container layoutIfNeeded];
+//                                     [self.container setNeedsLayout];
+                                     [self.superview layoutIfNeeded];
                                  }
                                  completion:^(BOOL _){
 //                                     self.keyboardView.userInteractionEnabled = YES;
@@ -343,8 +438,30 @@
     self.topTextViewInset.constant = _textViewInsets.top;
     self.bottomTextViewInset.constant = - _textViewInsets.bottom;
 
+    [self.superview layoutIfNeeded];
+
     [self didChangeValueForKey:@"textViewInsets"];
 }
+
+
+
+- (void)setContainerInsets:(UIEdgeInsets)containerInsets {
+    [self willChangeValueForKey:@"containerInsets"];
+    _containerInsets = containerInsets;
+
+    self.leftLeftViewInset.constant = _containerInsets.left;
+    self.topLeftViewInset.constant = _containerInsets.top;
+    self.bottomLeftViewInset.constant = - _containerInsets.bottom;
+
+    self.rightRightViewInset.constant = - _containerInsets.right;
+    self.topRightViewInset.constant = _containerInsets.top;
+    self.bottomRightViewInset.constant = - _containerInsets.bottom;
+
+    [self.superview layoutIfNeeded];
+
+    [self didChangeValueForKey:@"containerInsets"];
+}
+
 - (void)dealloc {
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
     [[NSNotificationCenter defaultCenter] removeObserver:self.changeKeyboardObserver];

@@ -7,13 +7,17 @@
 //
 
 @import UIKit;
+#import "NHContainerView.h"
 
 @interface NHMessengerController : NSObject
 
 @property (nonatomic, assign) UIEdgeInsets textViewInsets;
+@property (nonatomic, assign) UIEdgeInsets containerInsets;
 
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
+@property (strong, readonly, nonatomic) NHContainerView *leftView;
+@property (strong, readonly, nonatomic) NHContainerView *leftView;
 
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView;
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView

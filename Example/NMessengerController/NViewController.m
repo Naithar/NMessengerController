@@ -36,7 +36,7 @@
 
     self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NHTextView class]];
 
-    ((NHTextView*)self.messengerController.textInputResponder).numberOfLines = 10;
+    ((NHTextView*)self.messengerController.textInputResponder).numberOfLines = 4;
     ((NHTextView*)self.messengerController.textInputResponder).useHeightConstraint = YES;
     ((NHTextView*)self.messengerController.textInputResponder).isGrowingTextView = YES;
 
@@ -56,11 +56,12 @@
     [self.messengerController.leftView addSubview:v1 withSize:CGSizeMake(35, 35) andIndex:1];
 
     [self.messengerController updateMessengerView];
-//
-//    self.messengerController.topView.contentSize = CGSizeMake(30, 100);
+
+    self.messengerController.topView.contentSize = CGSizeMake(0, 300);
+    self.messengerController.bottomView.contentSize = CGSizeMake(0, 50);
 //    [self.messengerController.topView invalidateIntrinsicContentSize];
 //    [self.view layoutIfNeeded];
-//    [self.messengerController updateMessengerView];
+    [self.messengerController updateMessengerView];
 }
 
 - (void)didReceiveMemoryWarning

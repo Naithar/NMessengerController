@@ -124,6 +124,14 @@
 
     [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.container
                                                                attribute:NSLayoutAttributeHeight
+                                                               relatedBy:NSLayoutRelationLessThanOrEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeHeight
+                                                              multiplier:0
+                                                                constant:self.superview.bounds.size.height - 325]];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.container
+                                                               attribute:NSLayoutAttributeHeight
                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                   toItem:self.container
                                                                attribute:NSLayoutAttributeHeight

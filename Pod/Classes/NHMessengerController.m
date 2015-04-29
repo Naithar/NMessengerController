@@ -107,6 +107,7 @@
     
     self.container = [[UIView alloc] initWithFrame:CGRectZero];
     [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
+    self.container.opaque = NO;
     self.container.backgroundColor = [UIColor redColor];
     self.container.clipsToBounds = YES;
 
@@ -155,6 +156,7 @@
                                                                 constant:0]];
 
     self.separatorView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.separatorView.opaque = NO;
     self.separatorView.backgroundColor = [UIColor blackColor];
     [self.separatorView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
@@ -197,6 +199,7 @@
                                                                     constant:0.5]];
 
     self.topView = [[NHContainerView alloc] initWithFrame:CGRectZero];
+    self.topView.opaque = NO;
     [self.topView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.topView.backgroundColor = [UIColor darkGrayColor];
 //    self.topView.contentSize = CGSizeMake(50, 50);
@@ -234,9 +237,9 @@
 
 
     self.bottomView = [[NHContainerView alloc] initWithFrame:CGRectZero];
+    self.bottomView.opaque = NO;
     [self.bottomView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.bottomView.backgroundColor = [UIColor darkGrayColor];
-//    self.bottomView.contentSize = CGSizeMake(50, 50);
     [self.container addSubview:self.bottomView];
 
     self.leftBottomViewInset = [NSLayoutConstraint constraintWithItem:self.bottomView
@@ -275,13 +278,15 @@
     }
     [self.container addSubview:self.textInputResponder];
 
-    self.leftView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
+    self.leftView = [[NHContainerView alloc] initWithFrame:CGRectZero];
+    self.leftView.opaque = NO;
     self.leftView.backgroundColor = [UIColor lightGrayColor];
     [self.leftView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.leftView.clipsToBounds = YES;
     [self.container addSubview:self.leftView];
 
-    self.rightView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
+    self.rightView = [[NHContainerView alloc] initWithFrame:CGRectZero];
+    self.rightView.opaque = NO;
     [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.rightView.backgroundColor = [UIColor lightGrayColor];
     self.rightView.hidden = YES;
@@ -289,6 +294,7 @@
     [self.container addSubview:self.rightView];
 
     self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.sendButtonSize.width, self.sendButtonSize.height)];
+    self.sendButton.opaque = NO;
     [self.sendButton addTarget:self action:@selector(sendButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.backgroundColor = [UIColor redColor];
     [self.sendButton setTitle:@"Send" forState:UIControlStateNormal];
@@ -413,6 +419,10 @@
 
                                        strongSelf.keyboardView.hidden = NO;
                                        strongSelf.panGesture.enabled = YES;
+
+                                       if ([weakSelf.delegate respondsToSelector:@selector(willShowKeyboardForMessenger:)]) {
+                                           [weakSelf.delegate willShowKeyboardForMessenger:weakSelf];
+                                       }
                                    }];
 
     self.hideKeyboardObserver = [[NSNotificationCenter defaultCenter]
@@ -426,6 +436,10 @@
 
 //                                       strongSelf.keyboardView.hidden = NO;
                                        strongSelf.panGesture.enabled = NO;
+
+                                       if ([weakSelf.delegate respondsToSelector:@selector(willHideKeyboardForMessenger:)]) {
+                                           [weakSelf.delegate willHideKeyboardForMessenger:weakSelf];
+                                       }
                                    }];
 
     self.foundResponderForTextView = [[NSNotificationCenter defaultCenter]
@@ -526,7 +540,14 @@
 }
 - (void)processText {
     if ([self.textInputResponder respondsToSelector:@selector(text)]) {
-        NSString *currentText = [self.textInputResponder text];
+        NSString *currentText = [[self.textInputResponder text]
+                                 stringByTrimmingCharactersInSet:[NSCharacterSet
+                                                                  whitespaceAndNewlineCharacterSet]];
+
+        __weak __typeof(self) weakSelf = self;
+        if ([weakSelf.delegate respondsToSelector:@selector(messenger:didChangeText:)]) {
+            [weakSelf.delegate messenger:weakSelf didChangeText:currentText];
+        }
 
         CGFloat newSize = (currentText && [currentText length] > 0) ? self.sendButtonSize.width : 0;
 
@@ -536,6 +557,10 @@
 
         if (newSize != 0) {
             self.rightView.hidden = NO;
+        }
+
+        if ([weakSelf.delegate respondsToSelector:@selector(messenger:didChangeButtonHiddenTo:)]) {
+            [weakSelf.delegate messenger:weakSelf didChangeButtonHiddenTo:newSize == 0];
         }
 
         [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
@@ -571,6 +596,11 @@
         self.keyboardView.hidden = NO;
         self.keyboardView = responder.inputAccessoryView.superview;
         self.keyboardView.hidden = NO;
+    }
+
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.delegate respondsToSelector:@selector(didStartEditingInMessenger:)]) {
+        [weakSelf.delegate didStartEditingInMessenger:weakSelf];
     }
 }
 - (void)panGestureAction:(UIPanGestureRecognizer*)recognizer {
@@ -749,7 +779,18 @@
 }
 
 - (void)sendButtonAction:(UIButton*)sender {
-    NSLog(@"send");
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.delegate respondsToSelector:@selector(messenger:didSendText:)]) {
+        NSString *currentText;
+
+        if ([self.textInputResponder respondsToSelector:@selector(text)]) {
+            currentText = [[self.textInputResponder text]
+                           stringByTrimmingCharactersInSet:[NSCharacterSet
+                                                            whitespaceAndNewlineCharacterSet]];
+        }
+
+        [weakSelf.delegate messenger:weakSelf didSendText:currentText];
+    }
 }
 
 - (void)updateInsets {

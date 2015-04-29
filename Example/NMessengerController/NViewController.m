@@ -18,7 +18,7 @@
 
 @end
 
-@interface NViewController ()<UITableViewDelegate, UITableViewDataSource>
+@interface NViewController ()<UITableViewDelegate, UITableViewDataSource, NHMessengerControllerDelegate>
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) NHMessengerController *messengerController;
@@ -40,10 +40,7 @@
     ((NHTextView*)self.messengerController.textInputResponder).useHeightConstraint = YES;
     ((NHTextView*)self.messengerController.textInputResponder).isGrowingTextView = YES;
 
-
-//    self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
-//    self.messengerController.separatorInsets = UIEdgeInsetsMake(0, 15, 5, 15);
-//    self.messengerController.containerInsets = UIEdgeInsetsMake(5, 15, 5, 15);
+    self.messengerController.delegate = self;
 
     ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
 
@@ -79,6 +76,30 @@
     cell.textLabel.text = [NSString stringWithFormat:@"%ld", (long)indexPath.row];
 
     return cell;
+}
+
+- (void)messenger:(NHMessengerController *)messenger didSendText:(NSString *)text {
+    NSLog(@"send text = %@", text);
+}
+
+- (void)messenger:(NHMessengerController *)messenger didChangeText:(NSString *)text {
+    NSLog(@"change text = %@", text);
+}
+
+- (void)messenger:(NHMessengerController *)messenger didChangeButtonHiddenTo:(BOOL)isHidden {
+    NSLog(@"hide button = %d", isHidden);
+}
+
+- (void)willShowKeyboardForMessenger:(NHMessengerController *)messenger {
+    NSLog(@"show");
+}
+
+- (void)willHideKeyboardForMessenger:(NHMessengerController *)messenger {
+    NSLog(@"hide");
+}
+
+- (void)didStartEditingInMessenger:(NHMessengerController *)messenger {
+    NSLog(@"edit");
 }
 
 @end

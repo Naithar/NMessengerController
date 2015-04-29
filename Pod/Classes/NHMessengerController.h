@@ -9,17 +9,25 @@
 @import UIKit;
 #import "NHContainerView.h"
 
-//delegate
-//send
-//changetext
-//change send button state
-//keyboard appear
-//keyboard dissapear
-//should change insets?
-//did start
-//did finish
+@class NHMessengerController;
+
+@protocol NHMessengerControllerDelegate <NSObject>
+
+@optional
+
+- (void)willShowKeyboardForMessenger:(NHMessengerController*)messenger;
+- (void)willHideKeyboardForMessenger:(NHMessengerController*)messenger;
+- (void)didStartEditingInMessenger:(NHMessengerController*)messenger;
+
+- (void)messenger:(NHMessengerController*)messenger didSendText:(NSString*)text;
+- (void)messenger:(NHMessengerController*)messenger didChangeText:(NSString*)text;
+- (void)messenger:(NHMessengerController*)messenger didChangeButtonHiddenTo:(BOOL)isHidden;
+
+@end
 
 @interface NHMessengerController : NSObject
+
+@property (nonatomic, weak) id<NHMessengerControllerDelegate> delegate;
 
 @property (nonatomic, assign) UIEdgeInsets textViewInsets;
 @property (nonatomic, assign) UIEdgeInsets containerInsets;
@@ -33,7 +41,7 @@
 @property (strong, readonly, nonatomic) NHContainerView *leftView;
 @property (strong, readonly, nonatomic) NHContainerView *bottomView;
 @property (strong, readonly, nonatomic) NHContainerView *rightView;
-@property (nonatomic, readonly, strong) UIButton *sendButton;
+@property (strong, readonly, nonatomic) UIButton *sendButton;
 @property (strong, readonly, nonatomic) UIView *separatorView;
 
 @property (nonatomic, assign) UIEdgeInsets initialScrollViewInsets;

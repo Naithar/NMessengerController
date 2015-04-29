@@ -12,11 +12,17 @@ const NSInteger kNHContainerViewTagIndex = 10000;
 
 @implementation NHContainerView
 
+
 - (CGSize)intrinsicContentSize {
     return self.contentSize;
 }
 
 - (void)calculateContentSize {
+
+    if (!self.subviews.count) {
+        return;
+    }
+
     __block CGSize newContentSize = CGSizeZero;
     [self.subviews enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger idx, BOOL *stop) {
         CGFloat maxX = CGRectGetMaxX(obj.frame);
@@ -61,4 +67,5 @@ const NSInteger kNHContainerViewTagIndex = 10000;
     [self invalidateIntrinsicContentSize];
     [self.superview layoutIfNeeded];
 }
+
 @end

@@ -43,6 +43,10 @@
 @property (strong, nonatomic) NSLayoutConstraint *rightTopViewInset;
 @property (strong, nonatomic) NSLayoutConstraint *leftTopViewInset;
 
+@property (strong, nonatomic) NHContainerView *bottomView;
+@property (strong, nonatomic) NSLayoutConstraint *rightBottomViewInset;
+@property (strong, nonatomic) NSLayoutConstraint *leftBottomViewInset;
+
 @property (strong, nonatomic) id changeKeyboardObserver;
 @property (strong, nonatomic) id showKeyboardObserver;
 @property (strong, nonatomic) id hideKeyboardObserver;
@@ -89,7 +93,8 @@
 
     _textViewInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     _containerInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    _separatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    _separatorInsets = UIEdgeInsetsMake(0, 0, 1, 0);
+    _sendButtonSize = CGSizeMake(60, 40);
 
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
     
@@ -212,6 +217,41 @@
 
     [self.container addConstraint:self.rightTopViewInset];
 
+
+    self.bottomView = [[NHContainerView alloc] initWithFrame:CGRectZero];
+    [self.bottomView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    self.bottomView.backgroundColor = [UIColor darkGrayColor];
+    self.bottomView.contentSize = CGSizeMake(50, 100);
+    [self.container addSubview:self.bottomView];
+
+    self.leftBottomViewInset = [NSLayoutConstraint constraintWithItem:self.bottomView
+                                                         attribute:NSLayoutAttributeLeft
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:self.container
+                                                         attribute:NSLayoutAttributeLeft
+                                                        multiplier:1.0
+                                                          constant:self.containerInsets.left];
+
+    [self.container addConstraint:self.leftBottomViewInset];
+
+    self.rightBottomViewInset = [NSLayoutConstraint constraintWithItem:self.bottomView
+                                                          attribute:NSLayoutAttributeRight
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.container
+                                                          attribute:NSLayoutAttributeRight
+                                                         multiplier:1.0
+                                                           constant:-self.containerInsets.right];
+
+    [self.container addConstraint:self.rightBottomViewInset];
+
+    [self.container addConstraint:[NSLayoutConstraint constraintWithItem:self.bottomView
+                                                               attribute:NSLayoutAttributeBottom
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.container
+                                                               attribute:NSLayoutAttributeBottom
+                                                              multiplier:1.0
+                                                                constant:0]];
+
     self.textInputResponder = [[responderType alloc] initWithFrame:CGRectZero];
     ((UIView*)self.textInputResponder).backgroundColor = [UIColor greenColor];
     [((UIView*)self.textInputResponder) setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -229,7 +269,8 @@
     self.rightView = [[NHContainerView alloc] initWithFrame:CGRectMake(10, 10, 10, 10)];
     [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.rightView.backgroundColor = [UIColor lightGrayColor];
-    self.rightView.contentSize = CGSizeMake(0, 50);
+    self.rightView.hidden = YES;
+    self.rightView.contentSize = CGSizeMake(0, self.sendButtonSize.height);
     [self.container addSubview:self.rightView];
 
     self.leftLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
@@ -244,8 +285,8 @@
     self.bottomLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
                                                             attribute:NSLayoutAttributeBottom
                                                             relatedBy:NSLayoutRelationEqual
-                                                               toItem:self.container
-                                                            attribute:NSLayoutAttributeBottom
+                                                               toItem:self.bottomView
+                                                            attribute:NSLayoutAttributeTop
                                                            multiplier:1.0
                                                              constant:-self.containerInsets.bottom];
 
@@ -275,8 +316,8 @@
     self.bottomTextViewInset = [NSLayoutConstraint constraintWithItem:self.textInputResponder
                                                             attribute:NSLayoutAttributeBottom
                                                             relatedBy:NSLayoutRelationEqual
-                                                               toItem:self.container
-                                                            attribute:NSLayoutAttributeBottom
+                                                               toItem:self.bottomView
+                                                            attribute:NSLayoutAttributeTop
                                                            multiplier:1.0
                                                              constant:-self.textViewInsets.bottom];
     [self.container addConstraint:self.bottomTextViewInset];
@@ -311,8 +352,8 @@
     self.bottomRightViewInset = [NSLayoutConstraint constraintWithItem:self.rightView
                                                             attribute:NSLayoutAttributeBottom
                                                             relatedBy:NSLayoutRelationEqual
-                                                               toItem:self.container
-                                                            attribute:NSLayoutAttributeBottom
+                                                                toItem:self.bottomView
+                                                             attribute:NSLayoutAttributeTop
                                                            multiplier:1.0
                                                              constant:-self.containerInsets.bottom];
 
@@ -421,6 +462,9 @@
         self.isInteractive = NO;
     }
 
+    [self.superview setNeedsLayout];
+    [self.superview layoutIfNeeded];
+
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -429,7 +473,6 @@
                        context:(void *)context {
     if ([keyPath isEqualToString:@"text"]
         && object == self.textInputResponder) {
-        NSLog(@"change %@ = ", change);
 
         NSString *oldText = change[NSKeyValueChangeOldKey];
         NSString *newText = change[NSKeyValueChangeNewKey];
@@ -445,17 +488,23 @@
     if ([self.textInputResponder respondsToSelector:@selector(text)]) {
         NSString *currentText = [self.textInputResponder text];
 
-        CGFloat newSize = (currentText && [currentText length] > 0) ? 100 : 0;
+        CGFloat newSize = (currentText && [currentText length] > 0) ? self.sendButtonSize.width : 0;
 
         if (newSize == self.rightView.contentSize.width) {
             return;
         }
 
+        if (newSize != 0) {
+            self.rightView.hidden = NO;
+        }
+
         [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-            self.rightView.contentSize = CGSizeMake(newSize, 100);
+            self.rightView.contentSize = CGSizeMake(newSize, self.sendButtonSize.height);
             [self.rightView invalidateIntrinsicContentSize];
             [self.superview layoutIfNeeded];
-        } completion:nil];
+        } completion:^(BOOL finished){
+            self.rightView.hidden = newSize == 0;
+        }];
     }
 }
 
@@ -581,6 +630,26 @@
     [self didChangeValueForKey:@"textViewInsets"];
 }
 
+- (void)updateMessengerView {
+    [self.topView calculateContentSize];
+    [self.topView invalidateIntrinsicContentSize];
+
+    [self.bottomView calculateContentSize];
+    [self.bottomView invalidateIntrinsicContentSize];
+
+    [self.leftView calculateContentSize];
+    [self.leftView invalidateIntrinsicContentSize];
+
+    [self.rightView calculateContentSize];
+    [self.leftView invalidateIntrinsicContentSize];
+
+    if ([self.textInputResponder respondsToSelector:@selector(invalidateIntrinsicContentSize)]) {
+        [self.textInputResponder invalidateIntrinsicContentSize];
+    }
+
+    [self.superview setNeedsLayout];
+    [self.superview layoutIfNeeded];
+}
 
 
 - (void)setContainerInsets:(UIEdgeInsets)containerInsets {
@@ -598,6 +667,9 @@
     self.leftTopViewInset.constant = _containerInsets.left;
     self.rightTopViewInset.constant = - _containerInsets.right;
 
+    self.leftBottomViewInset.constant = _containerInsets.left;
+    self.rightBottomViewInset.constant = - _containerInsets.right;
+
     [self.superview layoutIfNeeded];
 
     [self didChangeValueForKey:@"containerInsets"];
@@ -610,6 +682,17 @@
     self.rightSeparatorInset.constant = - _separatorInsets.right;
     self.bottomSeparatorInset.constant = _separatorInsets.bottom;
     [self didChangeValueForKey:@"separatorInsets"];
+}
+
+- (void)setSendButtonSize:(CGSize)sendButtonSize {
+    [self willChangeValueForKey:@"sendButtonSize"];
+    if (CGSizeEqualToSize(self.rightView.contentSize, _sendButtonSize)) {
+        self.rightView.contentSize = sendButtonSize;
+        [self.rightView invalidateIntrinsicContentSize];
+        [self.superview layoutIfNeeded];
+    }
+    _sendButtonSize = sendButtonSize;
+    [self didChangeValueForKey:@"sendButtonSize"];
 }
 
 - (void)dealloc {

@@ -36,9 +36,10 @@
     self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NTextView class]];
 
     ((NTextView*)self.messengerController.textInputResponder).fakeContentSize = CGSizeMake(300, 100);
-    self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
-    self.messengerController.separatorInsets = UIEdgeInsetsMake(0, 15, 5, 15);
-    self.messengerController.containerInsets = UIEdgeInsetsMake(5, 15, 5, 15);
+
+//    self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
+//    self.messengerController.separatorInsets = UIEdgeInsetsMake(0, 15, 5, 15);
+//    self.messengerController.containerInsets = UIEdgeInsetsMake(5, 15, 5, 15);
 
     ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
 
@@ -49,7 +50,8 @@
     UIView *v1 = [UIView new];
     v1.backgroundColor = [UIColor grayColor];
     [self.messengerController.leftView addSubview:v1 withSize:CGSizeMake(35, 35) andIndex:1];
-	// Do any additional setup after loading the view, typically from a nib.
+
+    [self.messengerController updateMessengerView];
 }
 
 - (void)didReceiveMemoryWarning

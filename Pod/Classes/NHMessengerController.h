@@ -15,6 +15,8 @@
 @property (nonatomic, assign) UIEdgeInsets containerInsets;
 @property (nonatomic, assign) UIEdgeInsets separatorInsets;
 
+@property (nonatomic, assign) CGSize sendButtonSize;
+
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
 @property (strong, readonly, nonatomic) NHContainerView *leftView;
@@ -27,5 +29,7 @@
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView
                       andSuperview:(UIView*)superview
                  andTextInputClass:(Class)textInputClass;
+
+- (void)updateMessengerView;
 
 @end

@@ -689,7 +689,6 @@
     [self.superview layoutIfNeeded];
 
     self.messengerInsets = UIEdgeInsetsMake(0, 0, self.container.bounds.size.height, 0);
-
     [self updateInsets];
 }
 
@@ -742,7 +741,6 @@
 }
 
 - (void)sendButtonAction:(UIButton*)sender {
-    [self scrollToBottomAnimated:YES];
     NSLog(@"send");
 }
 

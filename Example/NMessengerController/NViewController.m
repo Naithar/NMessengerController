@@ -8,6 +8,7 @@
 
 #import "NViewController.h"
 #import <NHMessengerController.h>
+#import <NHTextView.h>
 
 @implementation NTextView
 
@@ -33,9 +34,12 @@
     self.tableView.dataSource = self;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
 
-    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NTextView class]];
+    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NHTextView class]];
 
-    ((NTextView*)self.messengerController.textInputResponder).fakeContentSize = CGSizeMake(300, 100);
+    ((NHTextView*)self.messengerController.textInputResponder).numberOfLines = 10;
+    ((NHTextView*)self.messengerController.textInputResponder).useHeightConstraint = YES;
+    ((NHTextView*)self.messengerController.textInputResponder).isGrowingTextView = YES;
+
 
 //    self.messengerController.textViewInsets = UIEdgeInsetsMake(2, 15, 2, 15);
 //    self.messengerController.separatorInsets = UIEdgeInsetsMake(0, 15, 5, 15);
@@ -52,10 +56,10 @@
     [self.messengerController.leftView addSubview:v1 withSize:CGSizeMake(35, 35) andIndex:1];
 
     [self.messengerController updateMessengerView];
-
-    self.messengerController.topView.contentSize = CGSizeMake(30, 100);
-    [self.messengerController.topView invalidateIntrinsicContentSize];
-    [self.view layoutIfNeeded];
+//
+//    self.messengerController.topView.contentSize = CGSizeMake(30, 100);
+//    [self.messengerController.topView invalidateIntrinsicContentSize];
+//    [self.view layoutIfNeeded];
 //    [self.messengerController updateMessengerView];
 }
 

@@ -107,7 +107,7 @@
     
     self.container = [[UIView alloc] initWithFrame:CGRectZero];
     [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
-    self.container.opaque = NO;
+    self.container.opaque = YES;
     self.container.backgroundColor = [UIColor redColor];
     self.container.clipsToBounds = YES;
 
@@ -156,7 +156,7 @@
                                                                 constant:0]];
 
     self.separatorView = [[UIView alloc] initWithFrame:CGRectZero];
-    self.separatorView.opaque = NO;
+    self.separatorView.opaque = YES;
     self.separatorView.backgroundColor = [UIColor blackColor];
     [self.separatorView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
@@ -199,7 +199,7 @@
                                                                     constant:0.5]];
 
     self.topView = [[NHContainerView alloc] initWithFrame:CGRectZero];
-    self.topView.opaque = NO;
+    self.topView.opaque = YES;
     [self.topView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.topView.backgroundColor = [UIColor darkGrayColor];
 //    self.topView.contentSize = CGSizeMake(50, 50);
@@ -237,7 +237,7 @@
 
 
     self.bottomView = [[NHContainerView alloc] initWithFrame:CGRectZero];
-    self.bottomView.opaque = NO;
+    self.bottomView.opaque = YES;
     [self.bottomView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.bottomView.backgroundColor = [UIColor darkGrayColor];
     [self.container addSubview:self.bottomView];
@@ -279,14 +279,14 @@
     [self.container addSubview:self.textInputResponder];
 
     self.leftView = [[NHContainerView alloc] initWithFrame:CGRectZero];
-    self.leftView.opaque = NO;
+    self.leftView.opaque = YES;
     self.leftView.backgroundColor = [UIColor lightGrayColor];
     [self.leftView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.leftView.clipsToBounds = YES;
     [self.container addSubview:self.leftView];
 
     self.rightView = [[NHContainerView alloc] initWithFrame:CGRectZero];
-    self.rightView.opaque = NO;
+    self.rightView.opaque = YES;
     [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.rightView.backgroundColor = [UIColor lightGrayColor];
     self.rightView.hidden = YES;
@@ -294,7 +294,7 @@
     [self.container addSubview:self.rightView];
 
     self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.sendButtonSize.width, self.sendButtonSize.height)];
-    self.sendButton.opaque = NO;
+    self.sendButton.opaque = YES;
     [self.sendButton addTarget:self action:@selector(sendButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.backgroundColor = [UIColor redColor];
     [self.sendButton setTitle:@"Send" forState:UIControlStateNormal];

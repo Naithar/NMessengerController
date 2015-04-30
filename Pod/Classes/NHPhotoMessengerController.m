@@ -160,6 +160,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 
 - (void)clearImageArray {
     [self.imageArray removeAllObjects];
+    [self.photoCollectionView reloadData];
 
     [UIView animateWithDuration:0.3 animations:^{
         self.photoCollectionHeight.constant = 0;

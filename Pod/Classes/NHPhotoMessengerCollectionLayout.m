@@ -8,33 +8,34 @@
 
 #import "NHPhotoMessengerCollectionLayout.h"
 
+@interface NHPhotoMessengerCollectionLayout ()
+
+@end
+
 @implementation NHPhotoMessengerCollectionLayout
 
 - (instancetype)init {
     self = [super init];
 
     if (self) {
-        self.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        [self commonInit];
     }
 
     return self;
 }
 
-//- (UICollectionViewLayoutAttributes *)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath {
-//    UICollectionViewLayoutAttributes *attr = [self layoutAttributesForItemAtIndexPath:itemIndexPath];
-//
-//    attr.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0.2, 0.2), M_PI);
-//    attr.center = CGPointMake(CGRectGetMidX(self.collectionView.bounds), CGRectGetMaxY(self.collectionView.bounds));
-//
-//    return attr;
-//}
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
 
-//- (UICollectionViewLayoutAttributes *)finalLayoutAttributesForDisappearingItemAtIndexPath:(NSIndexPath *)itemIndexPath {
-//    UICollectionViewLayoutAttributes *attr = [self layoutAttributesForItemAtIndexPath:itemIndexPath];
-//
-//    attr.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0.2, 0.2), M_PI);
-//    attr.center = CGPointMake(CGRectGetMidX(self.collectionView.bounds), CGRectGetMaxY(self.collectionView.bounds));
-//
-//    return attr;
-//}
+    if (self) {
+        [self commonInit];
+    }
+
+    return self;
+}
+
+- (void)commonInit {
+    self.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+}
+
 @end

@@ -150,8 +150,15 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     }
 
     [self.imageArray addObject:image];
-    [self.photoCollectionView insertItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:(self.imageArray.count - 1) inSection:0] ]];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:(self.imageArray.count - 1) inSection:0];
+    [self.photoCollectionView insertItemsAtIndexPaths:@[ indexPath ]];
 
+    [self.photoCollectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
+
+}
+
+- (void)dealloc {
+    [self.imageArray removeAllObjects];
 }
 
 @end

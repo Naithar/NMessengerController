@@ -8,11 +8,23 @@
 
 #import "NHMessengerController.h"
 
+@class NHPhotoMessengerController;
+
+@protocol NHPhotoMessengerControllerDelegate <NSObject>
+
+@optional
+- (void)photoMessenger:(NHPhotoMessengerController*)messenger didSendPhotos:(NSArray*)array;
+
+@end
+
 @interface NHPhotoMessengerController : NHMessengerController
+
+@property (nonatomic, weak) id<NHPhotoMessengerControllerDelegate> photoDelegate;
 
 @property (nonatomic, readonly, strong) UIButton *attachmentButton;
 
 
 - (void)addImageToCollection:(UIImage*)image;
+- (void)clearImageArray;
 
 @end

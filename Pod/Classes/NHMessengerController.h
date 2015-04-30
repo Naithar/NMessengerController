@@ -35,6 +35,9 @@
 
 @property (nonatomic, assign) CGSize sendButtonSize;
 
+@property (weak, readonly, nonatomic) UIScrollView *scrollView;
+@property (weak, readonly, nonatomic) UIView *superview;
+
 @property (strong, readonly, nonatomic) UIView *container;
 @property (strong, readonly, nonatomic) id textInputResponder;
 @property (strong, readonly, nonatomic) NHContainerView *topView;
@@ -59,5 +62,7 @@
 - (void)updateMessengerView;
 - (void)scrollToBottom;
 - (void)scrollToBottomAnimated:(BOOL)animated;
+- (BOOL)shouldShowSendButton;
+- (void)updateSendButtonState;
 
 @end

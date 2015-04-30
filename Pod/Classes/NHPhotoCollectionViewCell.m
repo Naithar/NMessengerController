@@ -52,7 +52,7 @@
     self.contentView.opaque = YES;
 
     self.photoImageView = [[UIImageView alloc] initWithFrame:CGRectZero];
-    self.photoImageView.backgroundColor = [UIColor redColor];
+    self.photoImageView.backgroundColor = [UIColor groupTableViewBackgroundColor];
     self.photoImageView.opaque = YES;
     [self.photoImageView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.photoImageView.contentMode = UIViewContentModeScaleAspectFill;
@@ -95,11 +95,11 @@
     self.closeButton.imageView.contentMode = UIViewContentModeTopRight;
     self.closeButton.contentVerticalAlignment = UIControlContentVerticalAlignmentFill;
     self.closeButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentFill;
-    self.closeButton.backgroundColor = [UIColor grayColor];
+    self.closeButton.backgroundColor = [UIColor clearColor];
     self.closeButton.clipsToBounds = YES;
     [self.closeButton setTitle:nil forState:UIControlStateNormal];
-    [self.closeButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    [self.closeButton setImage:[UIImage imageNamed:@"NHmessenger.remove"] forState:UIControlStateNormal];
+    [self.closeButton setTintColor:[UIColor grayColor]];
 
     [self.contentView addSubview:self.closeButton];
 
@@ -108,14 +108,14 @@
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.closeButton
                                                                  attribute:NSLayoutAttributeHeight
-                                                                multiplier:0 constant:25]];
+                                                                multiplier:0 constant:35]];
 
     [self.closeButton addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButton
                                                                  attribute:NSLayoutAttributeWidth
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.closeButton
                                                                  attribute:NSLayoutAttributeWidth
-                                                                multiplier:0 constant:25]];
+                                                                multiplier:0 constant:35]];
 
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButton
                                                                  attribute:NSLayoutAttributeTop

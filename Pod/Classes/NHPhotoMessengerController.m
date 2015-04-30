@@ -35,9 +35,10 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     _imageArray = [@[] mutableCopy];
 
     self.attachmentButton = [[UIButton alloc] initWithFrame:CGRectZero];
-    self.attachmentButton.backgroundColor = [UIColor greenColor];
+    self.attachmentButton.backgroundColor = [UIColor whiteColor];
+    [self.attachmentButton setTitle:nil forState:UIControlStateNormal];
+    [self.attachmentButton setImage:[UIImage imageNamed:@"NHmessenger.attachment"] forState:UIControlStateNormal];
     [self.leftView addSubview:self.attachmentButton withSize:CGSizeMake(35, 35) andIndex:0];
-
 
     self.photoCollectionView = [[UICollectionView alloc]
                                 initWithFrame:CGRectZero
@@ -53,7 +54,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     [self.photoCollectionView registerClass:[NHPhotoCollectionViewCell class] forCellWithReuseIdentifier:@"cell"];
 
     [self.photoCollectionView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    self.photoCollectionView.backgroundColor = [UIColor brownColor];
+    self.photoCollectionView.backgroundColor = [UIColor whiteColor];
 
     [self.bottomView addSubview:self.photoCollectionView];
 
@@ -95,6 +96,20 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
                                                                 attribute:NSLayoutAttributeRight
                                                                multiplier:1.0 constant:0]];
 
+    [self.sendButton addTarget:self action:@selector(sendPhotosAction:) forControlEvents:UIControlEventTouchUpInside];
+
+}
+
+- (void)sendPhotosAction:(UIButton*)button {
+
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.photoDelegate respondsToSelector:@selector(photoMessenger:didSendPhotos:)]) {
+        [weakSelf.photoDelegate photoMessenger:weakSelf didSendPhotos:weakSelf.imageArray];
+    }
+}
+
+- (BOOL)shouldShowSendButton {
+    return [super shouldShowSendButton] || self.imageArray.count > 0;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
@@ -139,6 +154,19 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
             [self.bottomView.superview layoutIfNeeded];
         }];
     }
+
+    [self updateSendButtonState];
+}
+
+- (void)clearImageArray {
+    [self.imageArray removeAllObjects];
+
+    [UIView animateWithDuration:0.3 animations:^{
+        self.photoCollectionHeight.constant = 0;
+        [self.bottomView.superview layoutIfNeeded];
+    }];
+
+    [self updateSendButtonState];
 }
 
 - (void)addImageToCollection:(UIImage*)image {
@@ -155,6 +183,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 
     [self.photoCollectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
 
+    [self updateSendButtonState];
 }
 
 - (void)dealloc {

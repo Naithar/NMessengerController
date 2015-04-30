@@ -18,7 +18,7 @@
 
 @end
 
-@interface NViewController ()<UITableViewDelegate, UITableViewDataSource, NHMessengerControllerDelegate>
+@interface NViewController ()<UITableViewDelegate, UITableViewDataSource, NHMessengerControllerDelegate, NHPhotoMessengerControllerDelegate>
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) NHPhotoMessengerController *messengerController;
@@ -43,59 +43,10 @@
     ((NHTextView*)self.messengerController.textInputResponder).isGrowingTextView = YES;
 
     self.messengerController.delegate = self;
+    self.messengerController.photoDelegate = self;
 
     ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
 
-
-    UIView *tv = [UIView new];
-    tv.backgroundColor = [UIColor brownColor];
-    [tv setTranslatesAutoresizingMaskIntoConstraints:NO];
-
-    [self.messengerController.topView addSubview:tv];
-
-
-    NSLayoutConstraint *height = [NSLayoutConstraint constraintWithItem:tv
-                                                              attribute:NSLayoutAttributeHeight
-                                                              relatedBy:NSLayoutRelationEqual toItem:tv
-                                                              attribute:NSLayoutAttributeHeight
-                                                             multiplier:0
-                                                               constant:300];
-    height.priority = 750;
-    [tv addConstraint:height];
-
-    [self.messengerController.topView addConstraint:[NSLayoutConstraint
-                                                     constraintWithItem:tv
-                                                     attribute:NSLayoutAttributeTop
-                                                     relatedBy:NSLayoutRelationEqual
-                                                     toItem:self.messengerController.topView
-                                                     attribute:NSLayoutAttributeTop
-                                                     multiplier:1.0 constant:0]];
-
-    [self.messengerController.topView addConstraint:[NSLayoutConstraint
-                                                     constraintWithItem:tv
-                                                     attribute:NSLayoutAttributeLeft
-                                                     relatedBy:NSLayoutRelationEqual
-                                                     toItem:self.messengerController.topView
-                                                     attribute:NSLayoutAttributeLeft
-                                                     multiplier:1.0 constant:0]];
-
-    [self.messengerController.topView addConstraint:[NSLayoutConstraint
-                                                     constraintWithItem:tv
-                                                     attribute:NSLayoutAttributeRight
-                                                     relatedBy:NSLayoutRelationEqual
-                                                     toItem:self.messengerController.topView
-                                                     attribute:NSLayoutAttributeRight
-                                                     multiplier:1.0 constant:0]];
-
-    [self.messengerController.topView addConstraint:[NSLayoutConstraint
-                                                     constraintWithItem:tv
-                                                     attribute:NSLayoutAttributeBottom
-                                                     relatedBy:NSLayoutRelationEqual
-                                                     toItem:self.messengerController.topView
-                                                     attribute:NSLayoutAttributeBottom
-                                                     multiplier:1.0 constant:0]];
-
-//    [self.messengerController.topView invalidateIntrinsicContentSize];
 //    [self.view layoutIfNeeded];
     [self.messengerController updateMessengerView];
 
@@ -149,6 +100,13 @@
 - (void)didStartEditingInMessenger:(NHMessengerController *)messenger {
     NSLog(@"edit");
     [[self messengerController] scrollToBottomAnimated:YES];
+}
+
+- (void)photoMessenger:(NHPhotoMessengerController *)messenger didSendPhotos:(NSArray *)array {
+    NSLog(@"sending photos %@", array);
+
+    [messenger.textInputResponder setText:nil];
+    [messenger clearImageArray];
 }
 
 @end

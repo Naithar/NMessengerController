@@ -108,7 +108,7 @@
     self.container = [[UIView alloc] initWithFrame:CGRectZero];
     [self.container setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.container.opaque = YES;
-    self.container.backgroundColor = [UIColor redColor];
+    self.container.backgroundColor = [UIColor whiteColor];
     self.container.clipsToBounds = YES;
 
     self.bottomConstraint = [NSLayoutConstraint constraintWithItem:self.container
@@ -157,7 +157,7 @@
 
     self.separatorView = [[UIView alloc] initWithFrame:CGRectZero];
     self.separatorView.opaque = YES;
-    self.separatorView.backgroundColor = [UIColor blackColor];
+    self.separatorView.backgroundColor = [UIColor colorWithRed:0.6 green:0.65 blue:0.65 alpha:1];
     [self.separatorView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     [self.container addSubview:self.separatorView];
@@ -201,8 +201,7 @@
     self.topView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     self.topView.opaque = YES;
     [self.topView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    self.topView.backgroundColor = [UIColor darkGrayColor];
-//    self.topView.contentSize = CGSizeMake(50, 50);
+    self.topView.backgroundColor = [UIColor whiteColor];
     [self.container addSubview:self.topView];
 
     self.bottomSeparatorInset = [NSLayoutConstraint constraintWithItem:self.topView
@@ -239,7 +238,7 @@
     self.bottomView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     self.bottomView.opaque = YES;
     [self.bottomView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    self.bottomView.backgroundColor = [UIColor darkGrayColor];
+    self.bottomView.backgroundColor = [UIColor whiteColor];
     [self.container addSubview:self.bottomView];
 
     self.leftBottomViewInset = [NSLayoutConstraint constraintWithItem:self.bottomView
@@ -271,7 +270,9 @@
                                                                 constant:0]];
 
     self.textInputResponder = [[responderType alloc] initWithFrame:CGRectZero];
-    ((UIView*)self.textInputResponder).backgroundColor = [UIColor greenColor];
+    ((UIView*)self.textInputResponder).backgroundColor = [UIColor groupTableViewBackgroundColor];
+    ((UIView*)self.textInputResponder).layer.cornerRadius = 10;
+    ((UIView*)self.textInputResponder).clipsToBounds = YES;
     [((UIView*)self.textInputResponder) setTranslatesAutoresizingMaskIntoConstraints:NO];
     if ([self.textInputResponder respondsToSelector:@selector(setInputAccessoryView:)]) {
         [self.textInputResponder performSelector:@selector(setInputAccessoryView:) withObject:[UIView new]];
@@ -280,7 +281,7 @@
 
     self.leftView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     self.leftView.opaque = YES;
-    self.leftView.backgroundColor = [UIColor lightGrayColor];
+    self.leftView.backgroundColor = [UIColor whiteColor];
     [self.leftView setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.leftView.clipsToBounds = YES;
     [self.container addSubview:self.leftView];
@@ -288,7 +289,7 @@
     self.rightView = [[NHContainerView alloc] initWithFrame:CGRectZero];
     self.rightView.opaque = YES;
     [self.rightView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    self.rightView.backgroundColor = [UIColor lightGrayColor];
+    self.rightView.backgroundColor = [UIColor whiteColor];
     self.rightView.hidden = YES;
     self.rightView.contentSize = CGSizeMake(0, self.sendButtonSize.height);
     [self.container addSubview:self.rightView];
@@ -296,8 +297,11 @@
     self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.sendButtonSize.width, self.sendButtonSize.height)];
     self.sendButton.opaque = YES;
     [self.sendButton addTarget:self action:@selector(sendButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    self.sendButton.backgroundColor = [UIColor redColor];
-    [self.sendButton setTitle:@"Send" forState:UIControlStateNormal];
+    self.sendButton.backgroundColor = [UIColor whiteColor];
+    [self.sendButton setImage:nil forState:UIControlStateNormal];
+    [self.sendButton setTitle:NSLocalizedStringFromTable(@"button.send", @"NHMessenger", nil) forState:UIControlStateNormal];
+    [self.sendButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    self.sendButton.titleLabel.textAlignment = NSTextAlignmentRight;
     [self.rightView addSubview:self.sendButton];
 
     self.leftLeftViewInset = [NSLayoutConstraint constraintWithItem:self.leftView
@@ -538,6 +542,40 @@
         [self updateInsets];
     }
 }
+
+- (BOOL)shouldShowSendButton {
+    NSString *currentText = [[self.textInputResponder text]
+                                    stringByTrimmingCharactersInSet:[NSCharacterSet
+                                                                     whitespaceAndNewlineCharacterSet]];
+
+    return currentText && [currentText length] > 0;
+}
+
+- (void)updateSendButtonState {
+    CGFloat newSize = ([self shouldShowSendButton]) ? self.sendButtonSize.width : 0;
+
+    if (newSize == self.rightView.contentSize.width) {
+        return;
+    }
+
+    if (newSize != 0) {
+        self.rightView.hidden = NO;
+    }
+
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.delegate respondsToSelector:@selector(messenger:didChangeButtonHiddenTo:)]) {
+        [weakSelf.delegate messenger:weakSelf didChangeButtonHiddenTo:newSize == 0];
+    }
+
+    [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
+        self.rightView.contentSize = CGSizeMake(newSize, self.sendButtonSize.height);
+        [self.rightView invalidateIntrinsicContentSize];
+        [self.superview layoutIfNeeded];
+    } completion:^(BOOL finished){
+        self.rightView.hidden = newSize == 0;
+    }];
+}
+
 - (void)processText {
     if ([self.textInputResponder respondsToSelector:@selector(text)]) {
         NSString *currentText = [[self.textInputResponder text]
@@ -549,27 +587,7 @@
             [weakSelf.delegate messenger:weakSelf didChangeText:currentText];
         }
 
-        CGFloat newSize = (currentText && [currentText length] > 0) ? self.sendButtonSize.width : 0;
-
-        if (newSize == self.rightView.contentSize.width) {
-            return;
-        }
-
-        if (newSize != 0) {
-            self.rightView.hidden = NO;
-        }
-
-        if ([weakSelf.delegate respondsToSelector:@selector(messenger:didChangeButtonHiddenTo:)]) {
-            [weakSelf.delegate messenger:weakSelf didChangeButtonHiddenTo:newSize == 0];
-        }
-
-        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-            self.rightView.contentSize = CGSizeMake(newSize, self.sendButtonSize.height);
-            [self.rightView invalidateIntrinsicContentSize];
-            [self.superview layoutIfNeeded];
-        } completion:^(BOOL finished){
-            self.rightView.hidden = newSize == 0;
-        }];
+        [self updateSendButtonState];
     }
 }
 

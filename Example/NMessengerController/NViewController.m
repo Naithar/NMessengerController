@@ -97,9 +97,14 @@
 //    [self.view layoutIfNeeded];
     [self.messengerController updateMessengerView];
 
-    for (int i = 0; i < 10; i++) {
-        [self.messengerController addImageToCollection:[NSNull null]];
-    }
+    [self.messengerController.attachmentButton addTarget:self action:@selector(addPhoto:) forControlEvents:UIControlEventTouchUpInside];
+//    for (int i = 0; i < 10; i++) {
+//        [self.messengerController addImageToCollection:[NSNull null]];
+//    }
+}
+
+- (void)addPhoto:(UIButton*)button {
+    [self.messengerController addImageToCollection:[NSNull null]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -141,6 +146,7 @@
 
 - (void)didStartEditingInMessenger:(NHMessengerController *)messenger {
     NSLog(@"edit");
+    [[self messengerController] scrollToBottomAnimated:YES];
 }
 
 @end

@@ -58,5 +58,6 @@
 
 - (void)updateMessengerView;
 - (void)scrollToBottom;
+- (void)scrollToBottomAnimated:(BOOL)animated;
 
 @end

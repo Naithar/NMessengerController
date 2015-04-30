@@ -8,6 +8,7 @@
 
 #import "NHPhotoMessengerController.h"
 #import "NHPhotoCollectionViewCell.h"
+#import "NHPhotoMessengerCollectionLayout.h"
 
 const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 
@@ -40,12 +41,14 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 
     self.photoCollectionView = [[UICollectionView alloc]
                                 initWithFrame:CGRectZero
-                                collectionViewLayout:[[UICollectionViewFlowLayout alloc] init]];
+                                collectionViewLayout:[[NHPhotoMessengerCollectionLayout alloc] init]];
 
     self.photoCollectionView.delegate = self;
     self.photoCollectionView.dataSource = self;
-    ((UICollectionViewFlowLayout*)self.photoCollectionView.collectionViewLayout).scrollDirection = UICollectionViewScrollDirectionHorizontal;
     self.photoCollectionView.contentInset = UIEdgeInsetsMake(0, 5, 0, 5);
+    self.photoCollectionView.alwaysBounceHorizontal = YES;
+    self.photoCollectionView.showsVerticalScrollIndicator = NO;
+    self.photoCollectionView.showsHorizontalScrollIndicator = NO;
 
     [self.photoCollectionView registerClass:[NHPhotoCollectionViewCell class] forCellWithReuseIdentifier:@"cell"];
 
@@ -127,7 +130,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 
     if (indexPath) {
         [self.imageArray removeObjectAtIndex:indexPath.row];
-        [self.photoCollectionView reloadData];
+        [self.photoCollectionView deleteItemsAtIndexPaths:@[ indexPath ]];
     }
 
     if (self.imageArray.count == 0) {
@@ -144,11 +147,11 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
             self.photoCollectionHeight.constant = kNHPhotoMessengerCollectionHeight;
             [self.bottomView.superview layoutIfNeeded];
         }];
-
     }
 
     [self.imageArray addObject:image];
-    [self.photoCollectionView reloadData];
+    [self.photoCollectionView insertItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:(self.imageArray.count - 1) inSection:0] ]];
+
 }
 
 @end

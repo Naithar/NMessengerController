@@ -17,7 +17,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 @property (nonatomic, strong) UIButton *attachmentButton;
 @property (nonatomic, strong) UICollectionView *photoCollectionView;
 @property (nonatomic, strong) NSLayoutConstraint *photoCollectionHeight;
-@property (nonatomic, strong) NSMutableArray *imageArray;
+@property (nonatomic, strong) NSMutableArray *innerImageArray;
 @end
 
 @implementation NHPhotoMessengerController
@@ -32,7 +32,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 }
 
 - (void)photoMessegerInit {
-    _imageArray = [@[] mutableCopy];
+    _innerImageArray = [@[] mutableCopy];
 
     self.attachmentButton = [[UIButton alloc] initWithFrame:CGRectZero];
     self.attachmentButton.backgroundColor = [UIColor whiteColor];
@@ -109,12 +109,12 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 }
 
 - (BOOL)shouldShowSendButton {
-    return [super shouldShowSendButton] || self.imageArray.count > 0;
+    return [super shouldShowSendButton] || self.innerImageArray.count > 0;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
      numberOfItemsInSection:(NSInteger)section {
-    return [self.imageArray count];
+    return [self.innerImageArray count];
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
@@ -144,11 +144,11 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     NSIndexPath *indexPath = [self.photoCollectionView indexPathForCell:cell];
 
     if (indexPath) {
-        [self.imageArray removeObjectAtIndex:indexPath.row];
+        [self.innerImageArray removeObjectAtIndex:indexPath.row];
         [self.photoCollectionView deleteItemsAtIndexPaths:@[ indexPath ]];
     }
 
-    if (self.imageArray.count == 0) {
+    if (self.innerImageArray.count == 0) {
         [UIView animateWithDuration:0.3 animations:^{
             self.photoCollectionHeight.constant = 0;
             [self.bottomView.superview layoutIfNeeded];
@@ -159,7 +159,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 }
 
 - (void)clearImageArray {
-    [self.imageArray removeAllObjects];
+    [self.innerImageArray removeAllObjects];
     [self.photoCollectionView reloadData];
 
     [UIView animateWithDuration:0.3 animations:^{
@@ -171,15 +171,15 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 }
 
 - (void)addImageToCollection:(UIImage*)image {
-    if (![self.imageArray count]) {
+    if (![self.innerImageArray count]) {
         [UIView animateWithDuration:0.3 animations:^{
             self.photoCollectionHeight.constant = kNHPhotoMessengerCollectionHeight;
             [self.bottomView.superview layoutIfNeeded];
         }];
     }
 
-    [self.imageArray addObject:image];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:(self.imageArray.count - 1) inSection:0];
+    [self.innerImageArray addObject:image];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:(self.innerImageArray.count - 1) inSection:0];
     [self.photoCollectionView insertItemsAtIndexPaths:@[ indexPath ]];
 
     [self.photoCollectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
@@ -187,8 +187,12 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     [self updateSendButtonState];
 }
 
+- (NSArray *)imageArray {
+    return self.innerImageArray;
+}
+
 - (void)dealloc {
-    [self.imageArray removeAllObjects];
+    [self.innerImageArray removeAllObjects];
 }
 
 @end

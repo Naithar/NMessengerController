@@ -22,6 +22,7 @@
 @property (nonatomic, weak) id<NHPhotoMessengerControllerDelegate> photoDelegate;
 
 @property (nonatomic, readonly, strong) UIButton *attachmentButton;
+@property (nonatomic, readonly, copy) NSArray *imageArray;
 
 
 - (void)addImageToCollection:(UIImage*)image;

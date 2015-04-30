@@ -11,7 +11,7 @@
 
 const CGFloat kNHPhotoMessengerCollectionHeight = 75;
 
-@interface NHPhotoMessengerController ()<UICollectionViewDelegateFlowLayout, UICollectionViewDataSource>
+@interface NHPhotoMessengerController ()<UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, NHPhotoCollectionViewCellDelegate>
 
 @property (nonatomic, strong) UIButton *attachmentButton;
 @property (nonatomic, strong) UICollectionView *photoCollectionView;
@@ -116,18 +116,38 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     NHPhotoCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell"
                                                                            forIndexPath:indexPath];
 
-    cell.backgroundColor = [UIColor whiteColor];
+    cell.backgroundColor = collectionView.backgroundColor;
+    cell.delegate = self;
 
     return cell;
 }
 
+- (void)didTouchCloseButton:(UICollectionViewCell *)cell {
+    NSIndexPath *indexPath = [self.photoCollectionView indexPathForCell:cell];
+
+    if (indexPath) {
+        [self.imageArray removeObjectAtIndex:indexPath.row];
+        [self.photoCollectionView reloadData];
+    }
+
+    if (self.imageArray.count == 0) {
+        [UIView animateWithDuration:0.3 animations:^{
+            self.photoCollectionHeight.constant = 0;
+            [self.bottomView.superview layoutIfNeeded];
+        }];
+    }
+}
+
 - (void)addImageToCollection:(UIImage*)image {
     if (![self.imageArray count]) {
-        self.photoCollectionHeight.constant = kNHPhotoMessengerCollectionHeight;
+        [UIView animateWithDuration:0.3 animations:^{
+            self.photoCollectionHeight.constant = kNHPhotoMessengerCollectionHeight;
+            [self.bottomView.superview layoutIfNeeded];
+        }];
+
     }
 
     [self.imageArray addObject:image];
-
     [self.photoCollectionView reloadData];
 }
 

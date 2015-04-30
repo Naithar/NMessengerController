@@ -8,6 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol NHPhotoCollectionViewCellDelegate <NSObject>
+
+@optional
+-(void)didTouchCloseButton:(UICollectionViewCell*)cell;
+
+@end
+
 @interface NHPhotoCollectionViewCell : UICollectionViewCell
+
+@property (nonatomic, weak) id<NHPhotoCollectionViewCellDelegate> delegate;
 
 @end

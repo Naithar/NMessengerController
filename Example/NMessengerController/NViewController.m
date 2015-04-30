@@ -36,6 +36,8 @@
 
     self.messengerController = [[NHPhotoMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NHTextView class]];
 
+    ((NHTextView*)self.messengerController.textInputResponder).placeholder = @"placeholder";
+    ((NHTextView*)self.messengerController.textInputResponder).findMentions = YES;
     ((NHTextView*)self.messengerController.textInputResponder).numberOfLines = 4;
     ((NHTextView*)self.messengerController.textInputResponder).useHeightConstraint = YES;
     ((NHTextView*)self.messengerController.textInputResponder).isGrowingTextView = YES;

@@ -92,8 +92,10 @@
     self.closeButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.closeButton setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.closeButton.opaque = YES;
+    self.closeButton.imageView.contentMode = UIViewContentModeTopRight;
+    self.closeButton.contentVerticalAlignment = UIControlContentVerticalAlignmentFill;
+    self.closeButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentFill;
     self.closeButton.backgroundColor = [UIColor grayColor];
-    self.closeButton.layer.cornerRadius = 11;
     self.closeButton.clipsToBounds = YES;
     [self.closeButton setTitle:nil forState:UIControlStateNormal];
     [self.closeButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -106,28 +108,28 @@
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.closeButton
                                                                  attribute:NSLayoutAttributeHeight
-                                                                multiplier:0 constant:22]];
+                                                                multiplier:0 constant:25]];
 
     [self.closeButton addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButton
                                                                  attribute:NSLayoutAttributeWidth
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.closeButton
                                                                  attribute:NSLayoutAttributeWidth
-                                                                multiplier:0 constant:22]];
+                                                                multiplier:0 constant:25]];
 
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButton
                                                                  attribute:NSLayoutAttributeTop
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.contentView
                                                                  attribute:NSLayoutAttributeTop
-                                                                multiplier:1.0 constant:-2.5]];
+                                                                multiplier:1.0 constant:0]];
 
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButton
                                                                  attribute:NSLayoutAttributeRight
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.contentView
                                                                  attribute:NSLayoutAttributeRight
-                                                                multiplier:1.0 constant:2.5]];
+                                                                multiplier:1.0 constant:0]];
 
     [self.closeButton addTarget:self action:@selector(closeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
 

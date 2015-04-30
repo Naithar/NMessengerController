@@ -97,9 +97,9 @@
 - (void)commonInit {
 
     _textViewInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    _containerInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    _containerInsets = UIEdgeInsetsMake(2.5, 5, 2.5, 5);
     _separatorInsets = UIEdgeInsetsMake(0, 0, 1, 0);
-    _sendButtonSize = CGSizeMake(60, 40);
+    _sendButtonSize = CGSizeMake(60, 35);
     _initialScrollViewInsets = self.scrollView.contentInset;
     _additionalInsets = UIEdgeInsetsZero;
 

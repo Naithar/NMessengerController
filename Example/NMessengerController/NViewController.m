@@ -7,7 +7,7 @@
 //
 
 #import "NViewController.h"
-#import <NHMessengerController.h>
+#import <NMessengerController.h>
 #import <NHTextView.h>
 
 @implementation NTextView
@@ -21,7 +21,7 @@
 @interface NViewController ()<UITableViewDelegate, UITableViewDataSource, NHMessengerControllerDelegate>
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
-@property (strong, nonatomic) NHMessengerController *messengerController;
+@property (strong, nonatomic) NHPhotoMessengerController *messengerController;
 @end
 
 @implementation NViewController
@@ -34,7 +34,7 @@
     self.tableView.dataSource = self;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
 
-    self.messengerController = [[NHMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NHTextView class]];
+    self.messengerController = [[NHPhotoMessengerController alloc] initWithScrollView:self.tableView andSuperview:self.view andTextInputClass:[NHTextView class]];
 
     ((NHTextView*)self.messengerController.textInputResponder).numberOfLines = 4;
     ((NHTextView*)self.messengerController.textInputResponder).useHeightConstraint = YES;
@@ -44,21 +44,62 @@
 
     ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
 
-    UIView *v = [UIView new];
-    v.backgroundColor = [UIColor brownColor];
-    [self.messengerController.leftView addSubview:v withSize:CGSizeMake(35, 35) andIndex:0];
 
-    UIView *v1 = [UIView new];
-    v1.backgroundColor = [UIColor grayColor];
-    [self.messengerController.leftView addSubview:v1 withSize:CGSizeMake(35, 35) andIndex:1];
+    UIView *tv = [UIView new];
+    tv.backgroundColor = [UIColor brownColor];
+    [tv setTranslatesAutoresizingMaskIntoConstraints:NO];
 
-    [self.messengerController updateMessengerView];
+    [self.messengerController.topView addSubview:tv];
 
-    self.messengerController.topView.contentSize = CGSizeMake(0, 300);
-    self.messengerController.bottomView.contentSize = CGSizeMake(0, 50);
+
+    NSLayoutConstraint *height = [NSLayoutConstraint constraintWithItem:tv
+                                                              attribute:NSLayoutAttributeHeight
+                                                              relatedBy:NSLayoutRelationEqual toItem:tv
+                                                              attribute:NSLayoutAttributeHeight
+                                                             multiplier:0
+                                                               constant:300];
+    height.priority = 750;
+    [tv addConstraint:height];
+
+    [self.messengerController.topView addConstraint:[NSLayoutConstraint
+                                                     constraintWithItem:tv
+                                                     attribute:NSLayoutAttributeTop
+                                                     relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.messengerController.topView
+                                                     attribute:NSLayoutAttributeTop
+                                                     multiplier:1.0 constant:0]];
+
+    [self.messengerController.topView addConstraint:[NSLayoutConstraint
+                                                     constraintWithItem:tv
+                                                     attribute:NSLayoutAttributeLeft
+                                                     relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.messengerController.topView
+                                                     attribute:NSLayoutAttributeLeft
+                                                     multiplier:1.0 constant:0]];
+
+    [self.messengerController.topView addConstraint:[NSLayoutConstraint
+                                                     constraintWithItem:tv
+                                                     attribute:NSLayoutAttributeRight
+                                                     relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.messengerController.topView
+                                                     attribute:NSLayoutAttributeRight
+                                                     multiplier:1.0 constant:0]];
+
+    [self.messengerController.topView addConstraint:[NSLayoutConstraint
+                                                     constraintWithItem:tv
+                                                     attribute:NSLayoutAttributeBottom
+                                                     relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.messengerController.topView
+                                                     attribute:NSLayoutAttributeBottom
+                                                     multiplier:1.0 constant:0]];
+
 //    [self.messengerController.topView invalidateIntrinsicContentSize];
 //    [self.view layoutIfNeeded];
     [self.messengerController updateMessengerView];
+
+    for (int i = 0; i < 10; i++) {
+        [self.messengerController addImageToCollection:[NSNull null]];
+    }
 }
 
 - (void)didReceiveMemoryWarning

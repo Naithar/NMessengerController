@@ -676,14 +676,20 @@
         } break;
         default: {
 //            if (keyboardIsDismissing) {
+            if (CGRectGetMaxY(self.keyboardView.frame) == maxHeight) {
+                return;
+            }
+            
                 [UIView animateWithDuration:0.3
                                       delay:0.0
                                     options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
                                  animations:^{
                                      CGRect keyboardFrame = self.keyboardView.frame;
                                      CGFloat keyboardHeight = keyboardFrame.size.height;
-                                     keyboardFrame.origin.y = maxHeight - ((velocityInView.y < 0) ? keyboardHeight : 0);
                                      CGFloat offset = (velocityInView.y < 0) ? keyboardHeight : 0;
+
+                                     keyboardFrame.origin.y = maxHeight - offset;
+
                                      self.keyboardView.frame = keyboardFrame;
                                      self.bottomConstraint.constant = -offset;
                                      self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);

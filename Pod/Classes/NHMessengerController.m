@@ -676,10 +676,11 @@
         } break;
         default: {
 //            if (keyboardIsDismissing) {
-            if (CGRectGetMaxY(self.keyboardView.frame) == maxHeight) {
+            if (CGRectGetMaxY(self.keyboardView.frame) == maxHeight
+                || self.keyboardView.hidden) {
                 return;
             }
-            
+
                 [UIView animateWithDuration:0.3
                                       delay:0.0
                                     options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone

@@ -594,6 +594,8 @@
 - (void)processKeyboardNotification:(NSDictionary *)data {
 
     NSValue *keyboardRect = data[UIKeyboardFrameEndUserInfoKey];
+    NSNumber *keyboardAnimationDuration = data[UIKeyboardAnimationDurationUserInfoKey];
+    NSNumber *keyboardAnimationCurve = data[UIKeyboardAnimationCurveUserInfoKey];
 
     if (keyboardRect) {
 
@@ -601,10 +603,17 @@
 
         CGFloat offset = MAX(0, self.superview.frame.size.height - rect.origin.y);
 
-        self.bottomConstraint.constant = -offset;
-        self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
-        [self updateInsets];
-        [self.superview layoutIfNeeded];
+        [UIView animateWithDuration:[keyboardAnimationDuration floatValue]
+                              delay:0
+                            options:UIViewAnimationOptionBeginFromCurrentState
+         | ([keyboardAnimationCurve integerValue] << 16)
+                         animations:^{
+                             self.bottomConstraint.constant = -offset;
+                             self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
+                             [self updateInsets];
+                             [self.superview layoutIfNeeded];
+                         } completion:nil];
+
     }
 }
 

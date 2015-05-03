@@ -37,7 +37,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     self.attachmentButton = [[UIButton alloc] initWithFrame:CGRectZero];
     self.attachmentButton.backgroundColor = [UIColor whiteColor];
     [self.attachmentButton setTitle:nil forState:UIControlStateNormal];
-    [self.attachmentButton setImage:[UIImage imageNamed:@"NHmessenger.attachment"] forState:UIControlStateNormal];
+    [self.attachmentButton setImage:[UIImage imageNamed:@"NHmessenger.attachment.png"] forState:UIControlStateNormal];
     [self.leftView addSubview:self.attachmentButton withSize:CGSizeMake(35, 35) andIndex:0];
 
     self.photoCollectionView = [[UICollectionView alloc]

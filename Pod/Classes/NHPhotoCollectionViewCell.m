@@ -98,7 +98,7 @@
     self.closeButton.backgroundColor = [UIColor clearColor];
     self.closeButton.clipsToBounds = YES;
     [self.closeButton setTitle:nil forState:UIControlStateNormal];
-    [self.closeButton setImage:[UIImage imageNamed:@"NHmessenger.remove"] forState:UIControlStateNormal];
+    [self.closeButton setImage:[UIImage imageNamed:@"NHmessenger.remove.png"] forState:UIControlStateNormal];
     [self.closeButton setTintColor:[UIColor grayColor]];
 
     [self.contentView addSubview:self.closeButton];

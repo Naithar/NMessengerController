@@ -23,6 +23,8 @@
 - (void)messenger:(NHMessengerController*)messenger didChangeText:(NSString*)text;
 - (void)messenger:(NHMessengerController*)messenger didChangeButtonHiddenTo:(BOOL)isHidden;
 
+- (void)messenger:(NHMessengerController*)messenger willChangeMessengerInset:(UIEdgeInsets)insets;
+- (void)messenger:(NHMessengerController*)messenger willChangeKeyboardInset:(UIEdgeInsets)insets;
 @end
 
 @interface NHMessengerController : NSObject

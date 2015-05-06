@@ -49,7 +49,6 @@
 
 //    [self.view layoutIfNeeded];
     [self.messengerController updateMessengerView];
-
     [self.messengerController.attachmentButton addTarget:self action:@selector(addPhoto:) forControlEvents:UIControlEventTouchUpInside];
 //    for (int i = 0; i < 10; i++) {
 //        [self.messengerController addImageToCollection:[NSNull null]];
@@ -58,6 +57,15 @@
 
 - (void)addPhoto:(UIButton*)button {
     [self.messengerController addImageToCollection:[NSNull null]];
+}
+
+
+- (void)messenger:(NHMessengerController *)messenger willChangeMessengerInset:(UIEdgeInsets)insets {
+    NSLog(@"%@", NSStringFromUIEdgeInsets(insets));
+}
+
+-(void)messenger:(NHMessengerController *)messenger willChangeKeyboardInset:(UIEdgeInsets)insets {
+    NSLog(@"%@", NSStringFromUIEdgeInsets(insets));
 }
 
 - (void)didReceiveMemoryWarning

@@ -827,6 +827,30 @@
     }
 }
 
+- (void)setMessengerInsets:(UIEdgeInsets)messengerInsets {
+    [self willChangeValueForKey:@"messengerInsets"];
+    _messengerInsets = messengerInsets;
+
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.delegate respondsToSelector:@selector(messenger:willChangeMessengerInset:)]) {
+        [weakSelf.delegate messenger:weakSelf willChangeMessengerInset:messengerInsets];
+    }
+
+    [self didChangeValueForKey:@"messengerInsets"];
+}
+
+- (void)setKeyboardInsets:(UIEdgeInsets)keyboardInsets {
+    [self willChangeValueForKey:@"keyboardInsets"];
+    _keyboardInsets = keyboardInsets;
+
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.delegate respondsToSelector:@selector(messenger:willChangeKeyboardInset:)]) {
+        [weakSelf.delegate messenger:weakSelf willChangeKeyboardInset:keyboardInsets];
+    }
+    
+    [self didChangeValueForKey:@"keyboardInsets"];
+}
+
 - (void)updateInsets {
     self.scrollView.contentInset = UIEdgeInsetsMake(self.scrollView.contentInset.top,
                                                     self.scrollView.contentInset.left,

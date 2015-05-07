@@ -872,7 +872,12 @@
                                                     + self.keyboardInsets.bottom,
                                                     self.scrollView.contentInset.right);
 
-    self.scrollView.scrollIndicatorInsets = self.scrollView.contentInset;
+    self.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(self.scrollView.contentInset.top,
+                                                             self.scrollView.contentInset.left,
+                                                             self.initialScrollViewInsets.bottom
+                                                             + self.messengerInsets.bottom
+                                                             + self.keyboardInsets.bottom,
+                                                             self.scrollView.contentInset.right);
 }
 
 - (void)scrollToBottom {

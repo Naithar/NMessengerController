@@ -25,6 +25,7 @@
 
 - (void)messenger:(NHMessengerController*)messenger willChangeMessengerInset:(UIEdgeInsets)insets;
 - (void)messenger:(NHMessengerController*)messenger willChangeKeyboardInset:(UIEdgeInsets)insets;
+- (void)messenger:(NHMessengerController*)messenger willChangeInsets:(UIEdgeInsets)insets;
 @end
 
 @interface NHMessengerController : NSObject

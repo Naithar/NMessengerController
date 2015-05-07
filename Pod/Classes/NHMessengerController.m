@@ -830,6 +830,15 @@
         [weakSelf.delegate messenger:weakSelf willChangeMessengerInset:messengerInsets];
     }
 
+    if ([weakSelf.delegate respondsToSelector:@selector(messenger:willChangeInsets:)]) {
+        UIEdgeInsets insets = UIEdgeInsetsMake(messengerInsets.top + self.keyboardInsets.top,
+                                               messengerInsets.left + self.keyboardInsets.left,
+                                               messengerInsets.bottom + self.keyboardInsets.bottom,
+                                               messengerInsets.right + self.keyboardInsets.right);
+
+        [weakSelf.delegate messenger:weakSelf willChangeInsets:insets];
+    }
+
     [self didChangeValueForKey:@"messengerInsets"];
 }
 
@@ -840,6 +849,15 @@
     __weak __typeof(self) weakSelf = self;
     if ([weakSelf.delegate respondsToSelector:@selector(messenger:willChangeKeyboardInset:)]) {
         [weakSelf.delegate messenger:weakSelf willChangeKeyboardInset:keyboardInsets];
+    }
+
+    if ([weakSelf.delegate respondsToSelector:@selector(messenger:willChangeInsets:)]) {
+        UIEdgeInsets insets = UIEdgeInsetsMake(self.messengerInsets.top + keyboardInsets.top,
+                                               self.messengerInsets.left + keyboardInsets.left,
+                                               self.messengerInsets.bottom + keyboardInsets.bottom,
+                                               self.messengerInsets.right + keyboardInsets.right);
+
+        [weakSelf.delegate messenger:weakSelf willChangeInsets:insets];
     }
     
     [self didChangeValueForKey:@"keyboardInsets"];

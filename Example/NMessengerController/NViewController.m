@@ -111,7 +111,9 @@
 }
 
 - (void)photoMessenger:(NHPhotoMessengerController *)messenger didSendPhotos:(NSArray *)array {
-    NSLog(@"sending photos %@", array);
+    NSLog(@"sending text %@\nphotos = %@", [messenger.textInputResponder text], array);
+
+
 
     [messenger.textInputResponder setText:nil];
     [messenger clearImageArray];

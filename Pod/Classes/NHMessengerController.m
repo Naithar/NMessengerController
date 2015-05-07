@@ -643,21 +643,20 @@
     }
 
 
-    CGFloat maxHeight = self.superview.bounds.size.height;
+    CGFloat maxHeight = CGRectGetMaxY(self.superview.frame);
+    CGFloat pointOffset = CGRectGetMaxY(self.superview.frame) - CGRectGetHeight(self.superview.frame);
 
     CGPoint pointInView = [recognizer locationInView:self.superview];
     CGPoint velocityInView = [recognizer velocityInView:self.superview];
     [recognizer setTranslation:CGPointZero inView:self.superview];
-//    BOOL keyboardIsDismissing = CGRectContainsPoint(CGRectInset(self.container.frame, 0, -5), pointInView);
 
     switch (recognizer.state) {
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged: {
-//            self.keyboardView.userInteractionEnabled = NO;
             CGRect keyboardFrame = self.keyboardView.frame;
             CGFloat keyboardHeight = keyboardFrame.size.height;
 
-            keyboardFrame.origin.y = pointInView.y + self.container.bounds.size.height;
+            keyboardFrame.origin.y = pointInView.y + self.container.bounds.size.height + pointOffset;
 
             keyboardFrame.origin.y = MIN(keyboardFrame.origin.y, maxHeight);
             keyboardFrame.origin.y = MAX(keyboardFrame.origin.y, maxHeight - keyboardHeight);
@@ -673,18 +672,16 @@
                                   delay:0.0
                                 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
                              animations:^{
-                                 CGFloat offset = MAX(0, self.superview.frame.size.height - keyboardFrame.origin.y);
+                                 CGFloat offset = MAX(0, maxHeight - keyboardFrame.origin.y);
                                  self.keyboardView.frame = keyboardFrame;
                                  self.bottomConstraint.constant = -offset;
                                  self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
                                  [self updateInsets];
-//                                 [self.container setNeedsLayout];
                                  [self.superview layoutIfNeeded];
                              }
                              completion:nil];
         } break;
         default: {
-//            if (keyboardIsDismissing) {
             if (CGRectGetMaxY(self.keyboardView.frame) == maxHeight
                 || self.keyboardView.hidden) {
                 return;
@@ -704,12 +701,9 @@
                                      self.bottomConstraint.constant = -offset;
                                      self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
                                      [self updateInsets];
-
-//                                     [self.container setNeedsLayout];
                                      [self.superview layoutIfNeeded];
                                  }
                                  completion:^(BOOL _){
-//                                     self.keyboardView.userInteractionEnabled = YES;
                                      [self updateInsets];
                                      if (velocityInView.y >= 0) {
                                      self.keyboardView.hidden = YES;

@@ -67,5 +67,6 @@
 - (void)scrollToBottomAnimated:(BOOL)animated;
 - (BOOL)shouldShowSendButton;
 - (void)updateSendButtonState;
+- (void)updateInsets;
 
 @end

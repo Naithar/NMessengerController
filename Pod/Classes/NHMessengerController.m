@@ -277,6 +277,9 @@
     if ([self.textInputResponder respondsToSelector:@selector(setInputAccessoryView:)]) {
         [self.textInputResponder performSelector:@selector(setInputAccessoryView:) withObject:[UIView new]];
     }
+    if ([self.textInputResponder respondsToSelector:@selector(setScrollsToTop:)]) {
+        [self.textInputResponder setScrollsToTop:NO];
+    }
     [self.container addSubview:self.textInputResponder];
 
     self.leftView = [[NHContainerView alloc] initWithFrame:CGRectZero];

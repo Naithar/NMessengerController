@@ -50,6 +50,7 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     self.photoCollectionView.alwaysBounceHorizontal = YES;
     self.photoCollectionView.showsVerticalScrollIndicator = NO;
     self.photoCollectionView.showsHorizontalScrollIndicator = NO;
+    self.photoCollectionView.scrollsToTop = NO;
 
     [self.photoCollectionView registerClass:[NHPhotoCollectionViewCell class] forCellWithReuseIdentifier:@"cell"];
 

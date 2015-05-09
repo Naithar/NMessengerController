@@ -138,6 +138,8 @@ const CGFloat kNHPhotoMessengerCollectionHeight = 75;
     cell.backgroundColor = collectionView.backgroundColor;
     cell.delegate = self;
 
+    [cell reloadWithImage:self.imageArray[indexPath.row]];
+
     return cell;
 }
 

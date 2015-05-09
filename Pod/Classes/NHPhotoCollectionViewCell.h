@@ -19,4 +19,6 @@
 
 @property (nonatomic, weak) id<NHPhotoCollectionViewCellDelegate> delegate;
 
+- (void)reloadWithImage:(UIImage*)image;
+
 @end

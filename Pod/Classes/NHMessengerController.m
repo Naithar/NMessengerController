@@ -646,8 +646,9 @@
     }
 
 
-    CGFloat maxHeight = CGRectGetMaxY(self.superview.frame);
+    CGFloat maxWindowHeight = CGRectGetMaxY(self.superview.window.frame);
     CGFloat pointOffset = CGRectGetMaxY(self.superview.frame) - CGRectGetHeight(self.superview.frame);
+    CGFloat viewOffsetY = CGRectGetMaxY(self.superview.window.frame) - CGRectGetMaxY(self.superview.frame);
 
     CGPoint pointInView = [recognizer locationInView:self.superview];
     CGPoint velocityInView = [recognizer velocityInView:self.superview];
@@ -661,8 +662,8 @@
 
             keyboardFrame.origin.y = pointInView.y + self.container.bounds.size.height + pointOffset;
 
-            keyboardFrame.origin.y = MIN(keyboardFrame.origin.y, maxHeight);
-            keyboardFrame.origin.y = MAX(keyboardFrame.origin.y, maxHeight - keyboardHeight);
+            keyboardFrame.origin.y = MIN(keyboardFrame.origin.y, maxWindowHeight);
+            keyboardFrame.origin.y = MAX(keyboardFrame.origin.y, maxWindowHeight - keyboardHeight);
 
             if (CGRectGetMinY(keyboardFrame) == CGRectGetMinY(self.keyboardView.frame)) {
                 return;
@@ -675,7 +676,9 @@
                                   delay:0.0
                                 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
                              animations:^{
-                                 CGFloat offset = MAX(0, maxHeight - keyboardFrame.origin.y);
+                                 CGFloat offset = MAX(0, maxWindowHeight
+                                                      - keyboardFrame.origin.y
+                                                      - viewOffsetY);
                                  self.keyboardView.frame = keyboardFrame;
                                  self.bottomConstraint.constant = -offset;
                                  self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
@@ -683,9 +686,14 @@
                                  [self.superview layoutIfNeeded];
                              }
                              completion:nil];
+
+            if (self.bottomConstraint.constant == 0) {
+                recognizer.enabled = NO;
+                recognizer.enabled = YES;
+            }
         } break;
         default: {
-            if (CGRectGetMaxY(self.keyboardView.frame) == maxHeight
+            if (CGRectGetMaxY(self.keyboardView.frame) == maxWindowHeight
                 || self.keyboardView.hidden) {
                 return;
             }
@@ -696,9 +704,13 @@
                                  animations:^{
                                      CGRect keyboardFrame = self.keyboardView.frame;
                                      CGFloat keyboardHeight = keyboardFrame.size.height;
-                                     CGFloat offset = (velocityInView.y < 0) ? keyboardHeight : 0;
 
-                                     keyboardFrame.origin.y = maxHeight - offset;
+                                     keyboardFrame.origin.y = maxWindowHeight - ((velocityInView.y < 0) ? keyboardHeight : 0);
+
+                                     CGFloat offset = MAX(0, maxWindowHeight
+                                                          - keyboardFrame.origin.y
+                                                          - viewOffsetY);
+
 
                                      self.keyboardView.frame = keyboardFrame;
                                      self.bottomConstraint.constant = -offset;

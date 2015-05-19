@@ -297,7 +297,10 @@
     self.rightView.contentSize = CGSizeMake(0, self.sendButtonSize.height);
     [self.container addSubview:self.rightView];
 
-    self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.sendButtonSize.width, self.sendButtonSize.height)];
+    self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(self.sendButtonInsets.left,
+                                                                 self.sendButtonInsets.top,
+                                                                 self.sendButtonSize.width,
+                                                                 self.sendButtonSize.height)];
     self.sendButton.opaque = YES;
     [self.sendButton addTarget:self action:@selector(sendButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.backgroundColor = [UIColor whiteColor];
@@ -555,15 +558,23 @@
 }
 
 - (void)updateSendButtonState {
-    CGFloat newSize = ([self shouldShowSendButton]) ? self.sendButtonSize.width : 0;
+    BOOL sendButtonShow = [self shouldShowSendButton];
+    CGFloat newSize = (sendButtonShow
+                       ? self.sendButtonSize.width + self.sendButtonInsets.left + self.sendButtonInsets.right
+                       : self.sendButtonInsets.left);
 
     if (newSize == self.rightView.contentSize.width) {
         self.rightView.hidden = newSize == 0;
+        self.sendButton.hidden = !sendButtonShow;
         return;
     }
 
     if (newSize != 0) {
         self.rightView.hidden = NO;
+    }
+
+    if (sendButtonShow) {
+        self.sendButton.hidden = NO;
     }
 
     __weak __typeof(self) weakSelf = self;
@@ -572,11 +583,15 @@
     }
 
     [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-        self.rightView.contentSize = CGSizeMake(newSize, self.sendButtonSize.height);
+        self.rightView.contentSize = CGSizeMake(newSize,
+                                                self.sendButtonSize.height
+                                                + self.sendButtonInsets.top
+                                                + self.sendButtonInsets.bottom);
         [self.rightView invalidateIntrinsicContentSize];
         [self.superview layoutIfNeeded];
     } completion:^(BOOL finished){
         self.rightView.hidden = newSize == 0;
+        self.sendButton.hidden = ![self shouldShowSendButton];
     }];
 }
 
@@ -751,6 +766,20 @@
     [self didChangeValueForKey:@"textViewInsets"];
 }
 
+- (void)setSendButtonInsets:(UIEdgeInsets)sendButtonInsets {
+    [self willChangeValueForKey:@"sendButtonInsets"];
+    _sendButtonInsets = sendButtonInsets;
+
+    self.sendButton.frame = CGRectMake(sendButtonInsets.left,
+                                       sendButtonInsets.top,
+                                       self.sendButtonSize.width,
+                                       self.sendButtonSize.height);
+    
+    [self updateSendButtonState];
+
+    [self didChangeValueForKey:@"sendButtonInsets"];
+}
+
 - (void)updateMessengerView {
     [self.topView calculateContentSize];
     [self.topView invalidateIntrinsicContentSize];
@@ -810,14 +839,22 @@
 - (void)setSendButtonSize:(CGSize)sendButtonSize {
     [self willChangeValueForKey:@"sendButtonSize"];
 
-    self.sendButton.frame = CGRectMake(0, 0, sendButtonSize.width, sendButtonSize.height);
-    if (CGSizeEqualToSize(self.rightView.contentSize, _sendButtonSize)) {
-        self.rightView.contentSize = sendButtonSize;
-        [self.rightView invalidateIntrinsicContentSize];
-        [self.superview layoutIfNeeded];
-    }
+
+
+//    if (CGSizeEqualToSize(self.rightView.contentSize, _sendButtonSize)) {
+//        self.rightView.contentSize = sendButtonSize;
+//        [self.rightView invalidateIntrinsicContentSize];
+//        [self.superview layoutIfNeeded];
+//    }
 
     _sendButtonSize = sendButtonSize;
+
+    self.sendButton.frame = CGRectMake(self.sendButtonInsets.left,
+                                       self.sendButtonInsets.top,
+                                       sendButtonSize.width,
+                                       sendButtonSize.height);
+
+    [self updateSendButtonState];
 
     [self didChangeValueForKey:@"sendButtonSize"];
 }

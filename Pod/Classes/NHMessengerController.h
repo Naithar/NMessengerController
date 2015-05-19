@@ -55,6 +55,8 @@
 @property (nonatomic, readonly, assign) UIEdgeInsets keyboardInsets;
 @property (nonatomic, readonly, assign) UIEdgeInsets messengerInsets;
 
+@property (nonatomic, assign) UIEdgeInsets sendButtonInsets;
+
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView;
 - (instancetype)initWithScrollView:(UIScrollView*)scrollView
                      andSuperview:(UIView*)superview;

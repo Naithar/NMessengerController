@@ -558,6 +558,7 @@
     CGFloat newSize = ([self shouldShowSendButton]) ? self.sendButtonSize.width : 0;
 
     if (newSize == self.rightView.contentSize.width) {
+        self.rightView.hidden = newSize == 0;
         return;
     }
 

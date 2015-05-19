@@ -45,6 +45,13 @@
     self.messengerController.delegate = self;
     self.messengerController.photoDelegate = self;
 
+    UIView *v1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 50, self.messengerController.sendButtonSize.height)];
+    v1.backgroundColor = [UIColor redColor];
+    [self.messengerController.rightView addSubview:v1 andIndex:0];
+
+    [self.messengerController updateMessengerView];
+
+
     ((NTextView*)self.messengerController.textInputResponder).text = @"dsadas";
 
 //    [self.view layoutIfNeeded];

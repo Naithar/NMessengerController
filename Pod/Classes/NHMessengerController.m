@@ -637,6 +637,12 @@
 }
 
 - (void)getKeyboardViewFromFirstResponder:(UIResponder*)responder {
+    if (!responder.inputAccessoryView) {
+        if ([responder respondsToSelector:@selector(setInputAccessoryView:)]) {
+            [responder performSelector:@selector(setInputAccessoryView:) withObject:[UIView new]];
+        }
+    }
+    
     if (responder.inputAccessoryView
         && !self.keyboardView) {
         self.keyboardView.hidden = NO;
@@ -645,7 +651,8 @@
     }
 
     __weak __typeof(self) weakSelf = self;
-    if ([weakSelf.delegate respondsToSelector:@selector(didStartEditingInMessenger:)]) {
+    if (responder == self.textInputResponder
+        && [weakSelf.delegate respondsToSelector:@selector(didStartEditingInMessenger:)]) {
         [weakSelf.delegate didStartEditingInMessenger:weakSelf];
     }
 }

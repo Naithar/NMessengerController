@@ -19,21 +19,25 @@ const NSInteger kNHContainerViewTagIndex = 10000;
 
 - (void)calculateContentSize {
 
-    if (!self.subviews.count) {
+    if (!self.subviews.count
+        || ![self viewWithTag:kNHContainerViewTagIndex]) {
         return;
     }
 
     __block CGSize newContentSize = CGSizeZero;
     [self.subviews enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger idx, BOOL *stop) {
-        CGFloat maxX = CGRectGetMaxX(obj.frame);
-        CGFloat maxY = CGRectGetMaxY(obj.frame);
 
-        if (maxX > newContentSize.width) {
-            newContentSize.width = maxX;
-        }
+        if (obj.tag >= kNHContainerViewTagIndex) {
+            CGFloat maxX = CGRectGetMaxX(obj.frame);
+            CGFloat maxY = CGRectGetMaxY(obj.frame);
 
-        if (maxY > newContentSize.height) {
-            newContentSize.height = maxY;
+            if (maxX > newContentSize.width) {
+                newContentSize.width = maxX;
+            }
+
+            if (maxY > newContentSize.height) {
+                newContentSize.height = maxY;
+            }
         }
     }];
 

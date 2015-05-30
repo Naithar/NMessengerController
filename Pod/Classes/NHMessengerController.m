@@ -958,10 +958,10 @@
 }
 
 - (void)scrollToBottomAnimated:(BOOL)animated {
-    [UIView animateWithDuration:animated ? 0.3 : 0 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
-                     animations:^{
-                         [self.scrollView scrollRectToVisible:CGRectMake(0, self.scrollView.contentSize.height - 1, 1, 1) animated:NO];
-                     } completion:nil];
+//    [UIView animateWithDuration:animated ? 0.3 : 0 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
+//                     animations:^{
+                         [self.scrollView scrollRectToVisible:CGRectMake(0, self.scrollView.contentSize.height - 1, 1, 1) animated:animated];
+//                     } completion:nil];
 }
 
 - (void)dealloc {

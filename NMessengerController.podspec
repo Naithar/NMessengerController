@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "NMessengerController"
-  s.version          = "0.1.0"
+  s.version          = "0.5.0"
   s.summary          = "Custom messenger controller"
   s.description      = <<-DESC
                        Custrom messenger controller with interactive dismissal..

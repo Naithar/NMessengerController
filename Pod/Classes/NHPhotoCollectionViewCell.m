@@ -8,6 +8,12 @@
 
 #import "NHPhotoCollectionViewCell.h"
 
+#define image(name) \
+[[UIImage alloc] initWithContentsOfFile: \
+[[NSBundle bundleForClass:[NHPhotoCollectionViewCell class]]\
+pathForResource:name ofType:@"png"]]
+
+
 @interface NHPhotoCollectionViewCell ()
 
 @property (nonatomic, strong) UIImageView *photoImageView;
@@ -98,7 +104,7 @@
     self.closeButton.backgroundColor = [UIColor clearColor];
     self.closeButton.clipsToBounds = YES;
     [self.closeButton setTitle:nil forState:UIControlStateNormal];
-    [self.closeButton setImage:[UIImage imageNamed:@"NHmessenger.remove.png"] forState:UIControlStateNormal];
+    [self.closeButton setImage:image(@"NHmessenger.remove") forState:UIControlStateNormal];
     [self.closeButton setTintColor:[UIColor grayColor]];
 
     [self.contentView addSubview:self.closeButton];

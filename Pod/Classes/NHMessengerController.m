@@ -8,6 +8,11 @@
 
 #import "NHMessengerController.h"
 
+#define localization(name, table) \
+NSLocalizedStringFromTableInBundle(name, \
+table, \
+[NSBundle bundleForClass:[NHMessengerController class]], nil)
+
 @interface NHMessengerController ()<UIGestureRecognizerDelegate>{
     Class responderType;
 }
@@ -305,7 +310,7 @@
     [self.sendButton addTarget:self action:@selector(sendButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.backgroundColor = [UIColor whiteColor];
     [self.sendButton setImage:nil forState:UIControlStateNormal];
-    [self.sendButton setTitle:NSLocalizedStringFromTable(@"button.send", @"NHMessenger", nil) forState:UIControlStateNormal];
+    [self.sendButton setTitle:localization(@"button.send", @"NHMessenger") forState:UIControlStateNormal];
     [self.sendButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     self.sendButton.titleLabel.textAlignment = NSTextAlignmentRight;
     [self.rightView addSubview:self.sendButton];

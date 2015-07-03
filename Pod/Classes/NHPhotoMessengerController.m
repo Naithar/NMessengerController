@@ -11,7 +11,7 @@
 #import "NHPhotoMessengerCollectionLayout.h"
 
 #define image(name) \
-[[UIImage alloc] initWithContentsOfFile: \
+[UIImage imageWithContentsOfFile: \
 [[NSBundle bundleForClass:[NHPhotoMessengerController class]]\
 pathForResource:name ofType:@"png"]]
 

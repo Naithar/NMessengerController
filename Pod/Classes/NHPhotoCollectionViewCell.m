@@ -9,7 +9,7 @@
 #import "NHPhotoCollectionViewCell.h"
 
 #define image(name) \
-[[UIImage alloc] initWithContentsOfFile: \
+[UIImage imageWithContentsOfFile: \
 [[NSBundle bundleForClass:[NHPhotoCollectionViewCell class]]\
 pathForResource:name ofType:@"png"]]
 

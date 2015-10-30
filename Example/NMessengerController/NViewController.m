@@ -22,14 +22,29 @@
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) NHPhotoMessengerController *messengerController;
+
+//@property (strong, nonatomic) UIView *accessory;
+
 @end
 
 @implementation NViewController
+
+//- (BOOL)becomeFirstResponder {
+//    return [super becomeFirstResponder];
+//}
+//- (BOOL)canBecomeFirstResponder {
+//    return YES;
+//}
+//- (UIView *)inputAccessoryView {
+//    return self.accessory;
+//}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 
+//    self.accessory = [UIView new];
+    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
@@ -99,6 +114,7 @@
 
 - (void)messenger:(NHMessengerController *)messenger didChangeText:(NSString *)text {
     NSLog(@"change text = %@", text);
+    
 }
 
 - (void)messenger:(NHMessengerController *)messenger didChangeButtonHiddenTo:(BOOL)isHidden {

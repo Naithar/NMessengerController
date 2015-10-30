@@ -647,18 +647,29 @@ table, \
 }
 
 - (void)getKeyboardViewFromFirstResponder:(UIResponder*)responder {
+    [self __getKeyboardViewFromFirstResponder:responder];
+
+    __weak __typeof(self) weakSelf = self;
+    if (responder == self.textInputResponder
+        && [weakSelf.delegate respondsToSelector:@selector(didStartEditingInMessenger:)]) {
+        [weakSelf.delegate didStartEditingInMessenger:weakSelf];
+    }
+}
+
+- (void)__getKeyboardViewFromFirstResponder:(UIResponder*)responder {
     if (!responder.inputAccessoryView) {
         if ([responder respondsToSelector:@selector(setInputAccessoryView:)]) {
             [responder performSelector:@selector(setInputAccessoryView:) withObject:[UIView new]];
         }
     }
-
+    
     if (responder.inputAccessoryView
-        && !self.keyboardView) {
+        && !self.keyboardView
+        && !SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")) {
         self.keyboardView.hidden = NO;
         self.keyboardView = [responder.inputAccessoryView superview];
         self.keyboardView.hidden = NO;
-
+        
         if (!self.keyboardView
             && responder != self.textInputResponder
             && [responder isKindOfClass:[UITextField class]]) {
@@ -667,13 +678,17 @@ table, \
             return;
         }
     }
-
-    __weak __typeof(self) weakSelf = self;
-    if (responder == self.textInputResponder
-        && [weakSelf.delegate respondsToSelector:@selector(didStartEditingInMessenger:)]) {
-        [weakSelf.delegate didStartEditingInMessenger:weakSelf];
+    else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")
+             && !self.keyboardView) {
+        for (UIWindow *window in [[UIApplication sharedApplication] windows]) {
+            if ([window isKindOfClass:NSClassFromString(@"UIRemoteKeyboardWindow")]) {
+                self.keyboardView = [[window.subviews firstObject].subviews firstObject];
+            }
+        }
     }
 }
+
+
 - (void)panGestureAction:(UIPanGestureRecognizer*)recognizer {
     if (!self.isInteractive) {
         return;
@@ -681,7 +696,7 @@ table, \
 
     if (!self.keyboardView) {
         if ([self.textInputResponder respondsToSelector:@selector(inputAccessoryView)]) {
-            self.keyboardView = ((UIResponder*)self.textInputResponder).inputAccessoryView.superview;
+            [self __getKeyboardViewFromFirstResponder:self.textInputResponder];
         }
         return;
     }
@@ -698,6 +713,10 @@ table, \
     switch (recognizer.state) {
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged: {
+            
+            [UIView performWithoutAnimation:^{
+            
+            
             CGRect keyboardFrame = self.keyboardView.frame;
             CGFloat keyboardHeight = keyboardFrame.size.height;
 
@@ -709,14 +728,11 @@ table, \
             if (CGRectGetMinY(keyboardFrame) == CGRectGetMinY(self.keyboardView.frame)) {
                 return;
             }
-
-
-
-
-            [UIView animateWithDuration:0.0
-                                  delay:0.0
-                                options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
-                             animations:^{
+            
+//            [UIView animateWithDuration:0.0
+//                                  delay:0.0
+//                                options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionTransitionNone
+//                             animations:^{
                                  CGFloat offset = MAX(0, maxWindowHeight
                                                       - keyboardFrame.origin.y
                                                       - viewOffsetY);
@@ -724,14 +740,16 @@ table, \
                                  self.bottomConstraint.constant = -offset;
                                  self.keyboardInsets = UIEdgeInsetsMake(0, 0, offset, 0);
                                  [self updateInsets];
+                [self.superview setNeedsLayout];
                                  [self.superview layoutIfNeeded];
-                             }
-                             completion:nil];
+//                             }
+//                             completion:nil];
 
             if (self.bottomConstraint.constant == 0) {
                 recognizer.enabled = NO;
                 recognizer.enabled = YES;
             }
+            }];
         } break;
         default: {
             if (CGRectGetMaxY(self.keyboardView.frame) == maxWindowHeight

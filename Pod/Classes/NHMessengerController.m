@@ -13,6 +13,9 @@ NSLocalizedStringFromTableInBundle(name, \
 table, \
 [NSBundle bundleForClass:[NHMessengerController class]], nil)
 
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v) \
+([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+
 @interface NHMessengerController ()<UIGestureRecognizerDelegate>{
     Class responderType;
 }
